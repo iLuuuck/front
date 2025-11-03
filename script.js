@@ -32,17 +32,19 @@ if (themeToggleButton) {
 
 // --- Configuração e Inicialização do Firebase ---
 const firebaseConfig = {
-    apiKey: "AIzaSyAEZVCbz39BiqTj5f129PcrVHxfS6OnzLc",
-    authDomain: "gerenciadoremprestimos.firebaseapp.com",
-    projectId: "gerenciadoremprestimos",
-    storageBucket: "gerenciadoremprestimos.firebasestorage.app",
-    messagingSenderId: "365277402196",
-    appId: "1:365277402196:web:65016aa2dd316e718a89c1"
+  apiKey: "AIzaSyAH0w8X7p6D6c5Ga4Ma0eIJx5J4BtdlG2M",
+  authDomain: "russo2.firebaseapp.com",
+  projectId: "russo2",
+  storageBucket: "russo2.firebasestorage.app",
+  messagingSenderId: "590812147841",
+  appId: "1:590812147841:web:da98880beb257e0de3dd80",
+  measurementId: "G-C677LE7V89"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const auth = firebase.auth(); // Referência ao serviço de autenticação
+const auth = firebase.auth();
+ // Referência ao serviço de autenticação
 
 // --- Lógica de Autenticação (Login) ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -895,3 +897,4 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         }
     });
 }
+
