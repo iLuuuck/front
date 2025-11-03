@@ -31,14 +31,15 @@ if (themeToggleButton) {
 }
 
 // --- Configuração e Inicialização do Firebase ---
-// ATENÇÃO: Substitua os valores abaixo pelas suas credenciais reais do Firebase
+// ⚠️ ATENÇÃO: SUBSTITUA os valores de `firebaseConfig` abaixo pelas SUAS credenciais
+//            REAIS do seu projeto no console do Firebase.
 const firebaseConfig = {
-    apiKey: "AIzaSyAEZVCbz39BiqTj5f129PcrVHxfS6OnzLc",
-    authDomain: "gerenciadoremprestimos.firebaseapp.com",
-    projectId: "gerenciadoremprestimos",
-    storageBucket: "gerenciadoremprestimos.firebasestorage.app",
-    messagingSenderId: "365273574213",
-    appId: "1:365273574213:web:043b8a1c6a2c0c7a87e53f"
+    apiKey: "AIzaSyAH0w8X7p6D6c5Ga4Ma0eIJx5J4BtdlG2M", // ⬅️ Troque aqui
+    authDomain: "russo2.firebaseapp.com", // ⬅️ Troque aqui
+    projectId: "russo2", // ⬅️ Troque aqui
+    storageBucket: "russo2.firebasestorage.app",
+    messagingSenderId: "590812147841",
+    appId: "1:590812147841:web:da98880beb257e0de3dd80"
 };
 
 // Inicializa o Firebase
@@ -65,7 +66,7 @@ function formatCurrency(amount) {
 }
 
 function calculateRemaining(debtor) {
-    const totalPaid = debtor.payments.reduce((sum, p) => sum + p.amount, 0);
+    const totalPaid = (debtor.payments || []).reduce((sum, p) => sum + p.amount, 0);
     return debtor.totalDebt - totalPaid;
 }
 
@@ -80,7 +81,6 @@ function showError(message, elementId = 'errorMessage') {
     }
 }
 
-// NOVO: Função para atualizar o estado ativo dos botões de filtro
 function updateFilterButtons(activeButtonId) {
     const filterButtons = document.querySelectorAll('.filter-actions .button');
     filterButtons.forEach(button => {
@@ -150,7 +150,12 @@ function setupFirestoreListener() {
         .onSnapshot(snapshot => {
             debtors = [];
             snapshot.forEach(doc => {
-                debtors.push({ id: doc.id, ...doc.data() });
+                // Garante que payments é um array, mesmo que não exista
+                const data = doc.data();
+                if (!data.payments) {
+                    data.payments = [];
+                }
+                debtors.push({ id: doc.id, ...data });
             });
             renderDebtors();
         }, error => {
@@ -165,7 +170,8 @@ function setupFirestoreListener() {
 const detailModal = document.getElementById('debtorDetailModal');
 const closeDetailButton = document.getElementById('closeDetailModal');
 const addPaymentButton = document.getElementById('addPaymentButton');
-let currentDebtorId = null;
+const fillAmountButton = document.getElementById('fillAmountButton');
+let currentDebtor = null; // Armazena o devedor atual no modal
 
 if (closeDetailButton) {
     closeDetailButton.addEventListener('click', () => detailModal.classList.remove('open'));
@@ -185,9 +191,11 @@ function renderPayments(debtor) {
     paymentsGrid.innerHTML = '';
     
     if (debtor.payments && debtor.payments.length > 0) {
+        // Ordena do mais recente para o mais antigo
         debtor.payments.sort((a, b) => (b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp)) - (a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp)));
         
-        debtor.payments.forEach(payment => {
+        // Renderiza apenas os 6 pagamentos mais recentes
+        debtor.payments.slice(0, 6).forEach(payment => {
             const paymentItem = document.createElement('div');
             paymentItem.className = 'payment-item';
             paymentItem.innerHTML = `
@@ -197,13 +205,13 @@ function renderPayments(debtor) {
             paymentsGrid.appendChild(paymentItem);
         });
     } else {
-        paymentsGrid.innerHTML = '<p>Nenhum pagamento registrado ainda.</p>';
+        paymentsGrid.innerHTML = '<p class="loading-message">Nenhum pagamento registrado ainda.</p>';
     }
 }
 
 
 function openDetailModal(debtor) {
-    currentDebtorId = debtor.id;
+    currentDebtor = debtor; // Salva o devedor atual
     const remaining = calculateRemaining(debtor);
     const totalPaid = debtor.totalDebt - remaining;
 
@@ -214,8 +222,22 @@ function openDetailModal(debtor) {
     document.getElementById('detailInitialDate').textContent = formatDate(debtor.initialDate);
     document.getElementById('detailFrequency').textContent = debtor.frequency === 'daily' ? 'Diário' : debtor.frequency === 'weekly' ? 'Semanal' : 'Mensal';
     
+    // Reseta os inputs do pagamento
+    document.getElementById('paymentAmount').value = '';
+    document.getElementById('paymentDate').valueAsDate = new Date(); // Seta a data atual
+
     renderPayments(debtor);
     detailModal.classList.add('open');
+}
+
+// Botão para preencher o valor restante
+if (fillAmountButton) {
+    fillAmountButton.addEventListener('click', () => {
+        if (currentDebtor) {
+            const remaining = calculateRemaining(currentDebtor);
+            document.getElementById('paymentAmount').value = remaining.toFixed(2);
+        }
+    });
 }
 
 if (addPaymentButton) {
@@ -226,8 +248,14 @@ if (addPaymentButton) {
         const amount = parseFloat(paymentAmountInput.value);
         const dateString = paymentDateInput.value;
 
-        if (!currentDebtorId || isNaN(amount) || amount <= 0 || !dateString) {
+        if (!currentDebtor || isNaN(amount) || amount <= 0 || !dateString) {
             showError('Preencha um valor e uma data válidos.', 'detailModalMessage');
+            return;
+        }
+
+        const remaining = calculateRemaining(currentDebtor);
+        if (amount > remaining) {
+             showError(`O valor excede a dívida restante de ${formatCurrency(remaining)}.`, 'detailModalMessage');
             return;
         }
         
@@ -242,14 +270,15 @@ if (addPaymentButton) {
             };
 
             // Adiciona o novo pagamento ao array existente no Firestore
-            await db.collection('users').doc(currentUserId).collection('debtors').doc(currentDebtorId).update({
+            await db.collection('users').doc(currentUserId).collection('debtors').doc(currentDebtor.id).update({
                 payments: firebase.firestore.FieldValue.arrayUnion(newPayment)
             });
 
             paymentAmountInput.value = '';
-            paymentDateInput.value = '';
-            // A atualização do modal é feita automaticamente pelo listener do Firestore
-            detailModal.classList.remove('open');
+            paymentDateInput.valueAsDate = new Date();
+            
+            // Fecha o modal e confia no listener para atualizar a lista
+            detailModal.classList.remove('open'); 
             showError('Pagamento adicionado com sucesso!', 'errorMessage');
 
         } catch (error) {
@@ -263,8 +292,7 @@ if (addPaymentButton) {
 // --- Lógica de Login e Registro (index.html) ---
 
 if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
-    // ... (Lógica de Login/Registro original) ...
-    // (Mantida a lógica de autenticação com Firebase do seu arquivo)
+    
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     const showRegisterLink = document.getElementById('showRegister');
@@ -274,7 +302,7 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname 
 
     const handleAuthError = (error) => {
         let message = "Ocorreu um erro. Tente novamente.";
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-login-credentials') {
             message = "E-mail ou senha inválidos.";
         } else if (error.code === 'auth/email-already-in-use') {
             message = "Este e-mail já está em uso.";
@@ -283,6 +311,20 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname 
         }
         return message;
     };
+
+    // Função para alternar as views de login/registro
+    const toggleAuthView = (show) => {
+        if (show === 'register') {
+            loginSection.classList.remove('active');
+            registerSection.classList.add('active');
+            document.getElementById('loginMessage').style.display = 'none';
+        } else {
+            registerSection.classList.remove('active');
+            loginSection.classList.add('active');
+            document.getElementById('registerMessage').style.display = 'none';
+        }
+    }
+
 
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -330,16 +372,14 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname 
     if (showRegisterLink) {
         showRegisterLink.addEventListener('click', (e) => {
             e.preventDefault();
-            loginSection.classList.remove('active');
-            registerSection.classList.add('active');
+            toggleAuthView('register');
         });
     }
 
     if (showLoginLink) {
         showLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
-            registerSection.classList.remove('active');
-            loginSection.classList.add('active');
+            toggleAuthView('login');
         });
     }
 
@@ -347,6 +387,9 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname 
     auth.onAuthStateChanged((user) => {
         if (user) {
             window.location.href = 'dashboard.html';
+        } else {
+            // Garante que o login é a tela inicial (evita flash de registro)
+            toggleAuthView('login'); 
         }
     });
 }
@@ -360,6 +403,11 @@ if (window.location.pathname.endsWith('dashboard.html')) {
     const filterDailyButton = document.getElementById('filterDailyButton');
     const filterWeeklyButton = document.getElementById('filterWeeklyButton');
     const filterMonthlyButton = document.getElementById('filterMonthlyButton');
+    const debtorForm = document.getElementById('debtorForm');
+    const addEditDebtorModal = document.getElementById('addEditDebtorModal');
+    const closeAddEditModal = document.getElementById('closeAddEditModal');
+    const addDebtorButton = document.getElementById('addDebtorButton');
+
 
     // --- Logout ---
     if (logoutButton) {
@@ -405,31 +453,28 @@ if (window.location.pathname.endsWith('dashboard.html')) {
     }
 
 
-    // O listener de autenticação agora apenas armazena o UID e chama a função de setup
+    // O listener de autenticação
     auth.onAuthStateChanged((user) => {
         if (user) {
             currentUserId = user.uid; // Armazena o ID do usuário logado
-            console.log("Usuário logado:", user.email, "UID:", user.uid);
             setupFirestoreListener(); // Inicia o listener do Firestore
         } else {
             currentUserId = null; // Nenhum usuário logado
-            debtors = []; // Limpa a lista de devedores
-            renderDebtors(); // Renderiza a lista vazia
             window.location.href = 'index.html'; // Redireciona para o login
         }
     });
 
-    // --- Lógica de Adicionar/Editar Devedor (Exemplo básico) ---
-    // Você precisará implementar a lógica de abertura/fechamento do modal de adicionar/editar e o formulário.
-    const addDebtorButton = document.getElementById('addDebtorButton');
-    const addEditDebtorModal = document.getElementById('addEditDebtorModal');
-    const closeAddEditModal = document.getElementById('closeAddEditModal');
+
+    // --- Lógica de Adicionar/Salvar Devedor ---
 
     if (addDebtorButton) {
         addDebtorButton.addEventListener('click', () => {
             addEditDebtorModal.classList.add('open');
             document.getElementById('addEditModalTitle').textContent = 'Adicionar Novo Devedor';
-            document.getElementById('debtorForm').reset();
+            // Preenche o formulário com a data de hoje por padrão
+            document.getElementById('debtorInitialDate').valueAsDate = new Date(); 
+            debtorForm.reset();
+            document.getElementById('debtorId').value = '';
         });
     }
 
@@ -438,6 +483,45 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             addEditDebtorModal.classList.remove('open');
         });
     }
-    
-    // ... Implementar a lógica de submissão do formulário debtorForm aqui ...
+
+    if (debtorForm) {
+        debtorForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('debtorName').value;
+            const totalDebt = parseFloat(document.getElementById('debtorTotalDebt').value);
+            const initialDateString = document.getElementById('debtorInitialDate').value;
+            const frequency = document.getElementById('debtorFrequency').value;
+            const id = document.getElementById('debtorId').value;
+
+            if (isNaN(totalDebt) || totalDebt <= 0 || !name || !initialDateString) {
+                showError('Preencha todos os campos corretamente.', 'errorMessage');
+                return;
+            }
+
+            try {
+                const initialDate = new Date(initialDateString);
+                // Corrige o timezone
+                initialDate.setDate(initialDate.getDate() + 1); 
+
+                const newDebtorData = {
+                    name: name,
+                    totalDebt: totalDebt,
+                    initialDate: firebase.firestore.Timestamp.fromDate(initialDate),
+                    frequency: frequency,
+                    payments: [], // Sempre inicia com payments vazio
+                };
+                
+                // Salva no Firestore
+                await db.collection('users').doc(currentUserId).collection('debtors').add(newDebtorData);
+
+                addEditDebtorModal.classList.remove('open');
+                showError('Devedor adicionado com sucesso!', 'errorMessage');
+
+            } catch (error) {
+                console.error('Erro ao salvar devedor:', error);
+                showError('Erro ao salvar devedor. Tente novamente.', 'errorMessage');
+            }
+        });
+    }
 }
