@@ -33,9 +33,9 @@ if (themeToggleButton) {
 // --- Configuração e Inicialização do Firebase ---
 // ⚠️ ATENÇÃO: Seus valores REAIS foram inseridos aqui.
 const firebaseConfig = {
-    apiKey: "AIzaSyAH0w8X7p6D6c5Ga4Ma0eIJx5J4BtdlG2M", // <-- SEU API KEY
-    authDomain: "russo2.firebaseapp.com", // <-- SEU DOMÍNIO
-    projectId: "russo2", // <-- SEU PROJECT ID
+    apiKey: "AIzaSyAH0w8X7p6D6c5Ga4Ma0eIJx5J4BtdlG2M",
+    authDomain: "russo2.firebaseapp.com",
+    projectId: "russo2",
     storageBucket: "russo2.firebasestorage.app",
     messagingSenderId: "590812147841",
     appId: "1:590812147841:web:da98880beb257e0de3dd80"
@@ -45,7 +45,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-// ... resto do código ...
 
 let currentUserId = null;
 let debtors = [];
@@ -171,6 +170,7 @@ const detailModal = document.getElementById('debtorDetailModal');
 const closeDetailButton = document.getElementById('closeDetailModal');
 const addPaymentButton = document.getElementById('addPaymentButton');
 const fillAmountButton = document.getElementById('fillAmountButton');
+const editDebtorButton = document.getElementById('editDebtorButton');
 let currentDebtor = null; // Armazena o devedor atual no modal
 
 if (closeDetailButton) {
@@ -222,9 +222,14 @@ function openDetailModal(debtor) {
     document.getElementById('detailInitialDate').textContent = formatDate(debtor.initialDate);
     document.getElementById('detailFrequency').textContent = debtor.frequency === 'daily' ? 'Diário' : debtor.frequency === 'weekly' ? 'Semanal' : 'Mensal';
     
+    // Novos campos
+    document.getElementById('detailCalculationType').textContent = debtor.calculationType === 'fixed' ? 'Valor Fixo por Parcela' : 'Porcentagem de Juros (Total)';
+    document.getElementById('detailInterestRate').textContent = debtor.calculationType === 'fixed' ? formatCurrency(debtor.interestRate) : `${debtor.interestRate}%`;
+
     // Reseta os inputs do pagamento
     document.getElementById('paymentAmount').value = '';
     document.getElementById('paymentDate').valueAsDate = new Date(); // Seta a data atual
+    document.getElementById('detailModalMessage').style.display = 'none';
 
     renderPayments(debtor);
     detailModal.classList.add('open');
@@ -255,22 +260,19 @@ if (addPaymentButton) {
 
         const remaining = calculateRemaining(currentDebtor);
         if (amount > remaining) {
-             showError(`O valor excede a dívida restante de ${formatCurrency(remaining)}.`, 'errorMessage'); // Usando errorMessage do dashboard
+             showError(`O valor excede a dívida restante de ${formatCurrency(remaining)}.`, 'detailModalMessage');
             return;
         }
         
         try {
             const date = new Date(dateString);
-            // Corrige o timezone para garantir que a data seja a correta (dia seguinte)
             date.setDate(date.getDate() + 1); 
 
             const newPayment = {
                 amount: amount,
-                // Armazena como Timestamp do Firebase
                 timestamp: firebase.firestore.Timestamp.fromDate(date) 
             };
 
-            // Adiciona o novo pagamento ao array existente no Firestore
             await db.collection('users').doc(currentUserId).collection('debtors').doc(currentDebtor.id).update({
                 payments: firebase.firestore.FieldValue.arrayUnion(newPayment)
             });
@@ -278,7 +280,6 @@ if (addPaymentButton) {
             paymentAmountInput.value = '';
             paymentDateInput.valueAsDate = new Date();
             
-            // Fecha o modal e confia no listener para atualizar a lista
             detailModal.classList.remove('open'); 
             showError('Pagamento adicionado com sucesso!', 'errorMessage');
 
@@ -313,7 +314,6 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname 
         return message;
     };
 
-    // Função para alternar as views de login/registro
     const toggleAuthView = (show) => {
         if (show === 'register') {
             loginSection.classList.remove('active');
@@ -356,7 +356,6 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname 
 
             try {
                 await auth.createUserWithEmailAndPassword(email, password);
-                // Cria o documento do usuário no Firestore
                 await db.collection('users').doc(auth.currentUser.uid).set({
                     email: email,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -384,13 +383,10 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname 
         });
     }
 
-    // Redireciona se já estiver logado
     auth.onAuthStateChanged((user) => {
         if (user) {
             window.location.href = 'dashboard.html';
         } else {
-            // Garante que o login é a tela inicial (evita flash de registro)
-            // Checagem de pathname evita que execute em dashboard.html
             if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
                 toggleAuthView('login');
             }
@@ -456,8 +452,6 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         });
     }
 
-
-    // O listener de autenticação
     auth.onAuthStateChanged((user) => {
         if (user) {
             currentUserId = user.uid; // Armazena o ID do usuário logado
@@ -469,16 +463,49 @@ if (window.location.pathname.endsWith('dashboard.html')) {
     });
 
 
-    // --- Lógica de Adicionar/Salvar Devedor (Função Completa Reintegrada) ---
+    // --- Lógica de Adicionar/Salvar/Editar Devedor ---
 
+    // Ação do botão de Adicionar
     if (addDebtorButton) {
         addDebtorButton.addEventListener('click', () => {
             addEditDebtorModal.classList.add('open');
             document.getElementById('addEditModalTitle').textContent = 'Adicionar Novo Devedor';
-            // Preenche o formulário com a data de hoje por padrão
+            // Padrões
             document.getElementById('debtorInitialDate').valueAsDate = new Date(); 
+            document.getElementById('debtorFrequency').value = 'monthly';
+            document.getElementById('debtorCalculationType').value = 'fixed';
+            document.getElementById('debtorInterestRate').value = 0.00;
+            
             debtorForm.reset();
-            document.getElementById('debtorId').value = '';
+            document.getElementById('debtorId').value = ''; // ID VAZIO = ADICIONAR
+        });
+    }
+
+    // Ação do botão de Editar (no modal de detalhes)
+    if (editDebtorButton) {
+        editDebtorButton.addEventListener('click', () => {
+            if (!currentDebtor) return;
+            
+            // 1. Preenche o formulário para edição
+            document.getElementById('debtorId').value = currentDebtor.id;
+            document.getElementById('debtorName').value = currentDebtor.name;
+            document.getElementById('debtorTotalDebt').value = currentDebtor.totalDebt;
+            
+            // Formata a data do Timestamp para o formato do input Date (YYYY-MM-DD)
+            const initialDate = currentDebtor.initialDate.toDate();
+            const yyyy = initialDate.getFullYear();
+            const mm = String(initialDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(initialDate.getDate()).padStart(2, '0');
+            document.getElementById('debtorInitialDate').value = `${yyyy}-${mm}-${dd}`;
+            
+            document.getElementById('debtorFrequency').value = currentDebtor.frequency;
+            document.getElementById('debtorCalculationType').value = currentDebtor.calculationType;
+            document.getElementById('debtorInterestRate').value = currentDebtor.interestRate;
+
+            // 2. Abre o modal
+            document.getElementById('addEditModalTitle').textContent = 'Editar Devedor';
+            addEditDebtorModal.classList.add('open');
+            detailModal.classList.remove('open'); // Fecha o modal de detalhes
         });
     }
 
@@ -487,7 +514,8 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             addEditDebtorModal.classList.remove('open');
         });
     }
-
+    
+    // Ação de Submissão (Adicionar OU Editar)
     if (debtorForm) {
         debtorForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -496,16 +524,17 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             const totalDebt = parseFloat(document.getElementById('debtorTotalDebt').value);
             const initialDateString = document.getElementById('debtorInitialDate').value;
             const frequency = document.getElementById('debtorFrequency').value;
-            const id = document.getElementById('debtorId').value; // Usado para futura edição
+            const calculationType = document.getElementById('debtorCalculationType').value;
+            const interestRate = parseFloat(document.getElementById('debtorInterestRate').value);
+            const id = document.getElementById('debtorId').value; // Checa se existe ID (Editar)
 
-            if (isNaN(totalDebt) || totalDebt <= 0 || !name || !initialDateString || !frequency) {
-                showError('Preencha todos os campos corretamente (Nome, Dívida, Data e Frequência).', 'errorMessage');
+            if (isNaN(totalDebt) || totalDebt <= 0 || !name || !initialDateString || !frequency || isNaN(interestRate) || interestRate < 0) {
+                showError('Preencha todos os campos corretamente.', 'errorMessage');
                 return;
             }
 
             try {
                 const initialDate = new Date(initialDateString);
-                // Corrige o timezone para garantir que a data salva seja a correta
                 initialDate.setDate(initialDate.getDate() + 1); 
 
                 const newDebtorData = {
@@ -513,19 +542,161 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                     totalDebt: totalDebt,
                     initialDate: firebase.firestore.Timestamp.fromDate(initialDate),
                     frequency: frequency,
-                    payments: [], // Sempre inicia com payments vazio
+                    calculationType: calculationType,
+                    interestRate: interestRate, 
+                    // payments:[] não deve ser sobrescrito em uma edição, apenas na criação
                 };
                 
-                // Salva no Firestore
-                await db.collection('users').doc(currentUserId).collection('debtors').add(newDebtorData);
+                if (id) {
+                    // MODO EDIÇÃO
+                    await db.collection('users').doc(currentUserId).collection('debtors').doc(id).update(newDebtorData);
+                    showError('Devedor atualizado com sucesso!', 'errorMessage');
+                } else {
+                    // MODO ADICIONAR (Adiciona payments: [])
+                    const dataWithPayments = { ...newDebtorData, payments: [] };
+                    await db.collection('users').doc(currentUserId).collection('debtors').add(dataWithPayments);
+                    showError('Devedor adicionado com sucesso!', 'errorMessage');
+                }
 
                 addEditDebtorModal.classList.remove('open');
-                showError('Devedor adicionado com sucesso!', 'errorMessage');
 
             } catch (error) {
                 console.error('Erro ao salvar devedor:', error);
                 showError('Erro ao salvar devedor. Tente novamente.', 'errorMessage');
             }
+        });
+    }
+
+    // --- Lógica de Cálculo de Parcelas e Juros ---
+    
+    const showAllInstallmentsButton = document.getElementById('showAllInstallmentsButton');
+    const allInstallmentsModal = document.getElementById('allInstallmentsModal');
+    const closeAllInstallmentsModal = document.getElementById('closeAllInstallmentsModal');
+
+    if (closeAllInstallmentsModal) {
+        closeAllInstallmentsModal.addEventListener('click', () => allInstallmentsModal.classList.remove('open'));
+    }
+
+    // Função Principal de Cálculo e Geração do Cronograma
+    function calculateInstallments(debtor) {
+        if (debtor.calculationType === 'percentage') {
+            // CÁLCULO POR PORCENTAGEM (Simples: juros aplicados ao total)
+            const totalInterest = debtor.totalDebt * (debtor.interestRate / 100);
+            return {
+                totalInterest: totalInterest,
+                totalDebtWithInterest: debtor.totalDebt + totalInterest,
+                type: 'percentage'
+            };
+        } else {
+            // CÁLCULO FIXO POR PARCELA (Gera um cronograma)
+            const installments = [];
+            let remainingDebt = debtor.totalDebt;
+            // Cria uma cópia da data inicial para não alterar a original
+            let currentDate = debtor.initialDate.toDate(); 
+            let fixedAmount = debtor.interestRate;
+            let maxIterations = 500; // Limite de segurança
+
+            while (remainingDebt > 0 && maxIterations > 0) {
+                let installmentAmount = Math.min(fixedAmount, remainingDebt);
+                
+                installments.push({
+                    date: new Date(currentDate), // Adiciona o pagamento agendado
+                    amount: installmentAmount,
+                    type: 'scheduled'
+                });
+
+                remainingDebt -= installmentAmount;
+
+                // Move data para o próximo período
+                if (debtor.frequency === 'daily') {
+                    currentDate.setDate(currentDate.getDate() + 1);
+                } else if (debtor.frequency === 'weekly') {
+                    currentDate.setDate(currentDate.getDate() + 7);
+                } else if (debtor.frequency === 'monthly') {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                }
+
+                maxIterations--;
+            }
+            return { list: installments, type: 'fixed' };
+        }
+    }
+
+    // Renderiza o Cronograma (Cálculo Fixo)
+    function renderFixedInstallments(installments, payments, container) {
+        let paidAmountCumulative = (payments || []).reduce((sum, p) => sum + p.amount, 0) || 0;
+        let cumulativeScheduledAmount = 0;
+        
+        container.innerHTML = `<p class="loading-message" style="grid-column: 1 / -1;">
+            O cronograma é baseado no valor fixo de R$${currentDebtor.interestRate.toFixed(2)} por período.<br>
+            Total Pago (${formatCurrency(paidAmountCumulative)}) é usado para marcar as parcelas.
+        </p>`;
+
+
+        if (installments.length === 0) {
+            container.innerHTML += `<p class="loading-message" style="grid-column: 1 / -1; color: var(--success-color);">Dívida já quitada.</p>`;
+            return;
+        }
+
+        installments.forEach((event) => {
+            cumulativeScheduledAmount += event.amount;
+            let installmentPaidStatus = 'A PAGAR';
+            let color = 'var(--primary-color)';
+            let isPaid = paidAmountCumulative >= cumulativeScheduledAmount;
+
+            if (isPaid) {
+                installmentPaidStatus = 'PAGO';
+                color = 'var(--success-color)';
+            } else if (event.date < new Date()) {
+                installmentPaidStatus = 'ATRASADO';
+                color = 'var(--error-color)';
+            }
+
+
+            const installmentItem = document.createElement('div');
+            installmentItem.className = 'installment-square';
+            installmentItem.style.borderLeftColor = color;
+            installmentItem.innerHTML = `
+                <p><strong>${formatCurrency(event.amount)}</strong></p>
+                <p>${formatDate(event.date)}</p>
+                <span class="installment-status" style="color: ${color};">${installmentPaidStatus}</span>
+            `;
+            container.appendChild(installmentItem);
+        });
+    }
+
+    // Renderiza o Cálculo de Juros (Porcentagem)
+    function renderPercentageCalculation(result, container) {
+        container.innerHTML = `
+            <div class="summary-card">
+                <h3>Cálculo de Juros (Total)</h3>
+                <p><strong>Dívida Principal:</strong> ${formatCurrency(currentDebtor.totalDebt)}</p>
+                <p><strong>Taxa de Juros:</strong> ${currentDebtor.interestRate}%</p>
+                <p><strong>Juros Calculados:</strong> <span style="color: var(--error-color);">${formatCurrency(result.totalInterest)}</span></p>
+                <p><strong>Total com Juros:</strong> <span style="font-size: 1.2em; color: var(--primary-color); font-weight: bold;">${formatCurrency(result.totalDebtWithInterest)}</span></p>
+                <p class="loading-message">Este cálculo exibe o total da dívida acrescida de juros de forma simples e total. Não exibe um cronograma de parcelas.</p>
+            </div>
+        `;
+    }
+
+    // Listener para o botão "Exibir Cronograma"
+    if (showAllInstallmentsButton) {
+        showAllInstallmentsButton.addEventListener('click', () => {
+            if (!currentDebtor) return;
+
+            const allInstallmentsGrid = document.getElementById('allInstallmentsGrid');
+            allInstallmentsGrid.innerHTML = '<p class="loading-message">Calculando...</p>';
+
+            const calculationResult = calculateInstallments(currentDebtor);
+            allInstallmentsGrid.innerHTML = ''; // Limpa a mensagem de carregamento
+
+            if (calculationResult.type === 'fixed') {
+                renderFixedInstallments(calculationResult.list, currentDebtor.payments, allInstallmentsGrid);
+            } else if (calculationResult.type === 'percentage') {
+                renderPercentageCalculation(calculationResult, allInstallmentsGrid);
+            }
+
+            allInstallmentsModal.classList.add('open');
         });
     }
 }
