@@ -101,12 +101,21 @@ h1, h2, h3 {
     background-color: var(--button-secondary-hover-bg);
 }
 
+.button-delete {
+    background-color: var(--error-color);
+    color: var(--button-primary-text-color);
+}
+
+.button-delete:hover {
+    background-color: #c43226; /* Um tom mais escuro do erro */
+}
+
 input[type="text"], input[type="number"], input[type="email"], input[type="password"], input[type="date"], select {
     width: 100%;
     padding: 12px;
     margin-top: 5px;
     margin-bottom: 15px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--card-border-color);
     border-radius: 8px;
     background-color: var(--input-background-color);
     color: var(--input-text-color);
@@ -137,6 +146,14 @@ input:focus, select:focus {
     text-align: center;
 }
 
+.loading-message {
+    color: var(--text-color);
+    opacity: 0.7;
+    text-align: center;
+    padding: 10px;
+    grid-column: 1 / -1; /* Ocupa toda a largura do grid */
+}
+
 .app-logo {
     width: 50px;
     height: 50px;
@@ -154,7 +171,7 @@ input:focus, select:focus {
 .auth-section {
     background-color: var(--card-background-color);
     border: 1px solid var(--card-border-color);
-    backdrop-filter: blur(10px); /* Efeito Vidro */
+    backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px);
     padding: 40px;
     border-radius: 15px;
@@ -192,7 +209,7 @@ input:focus, select:focus {
 /* --- Estilos do Dashboard (dashboard.html) --- */
 .dashboard-container {
     width: 95%;
-    max-width: 1200px; /* Limite máximo para telas grandes */
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px 0;
 }
@@ -203,7 +220,7 @@ input:focus, select:focus {
     align-items: center;
     padding: 15px 0;
     margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--card-border-color);
 }
 
 .header h1 {
@@ -250,7 +267,7 @@ input:focus, select:focus {
     flex-wrap: wrap;
     padding-bottom: 15px;
     margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--card-border-color);
 }
 
 .filter-actions .button {
@@ -275,7 +292,7 @@ input:focus, select:focus {
 /* GRID RESPONSIVO: Lista de Devedores */
 .debtors-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 100% Responsivo */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
     gap: 25px;
     padding: 10px 0;
 }
@@ -283,15 +300,15 @@ input:focus, select:focus {
 /* ESTILO GLASSMORHISM para o Item do Devedor (Os "Quadradinhos") */
 .debtor-item {
     background-color: var(--card-background-color);
-    border: 1px solid var(--card-border-color); /* Borda leve com cor */
-    backdrop-filter: blur(10px); /* Efeito Vidro */
+    border: 1px solid var(--card-border-color);
+    backdrop-filter: blur(10px); 
     -webkit-backdrop-filter: blur(10px);
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 8px 32px 0 var(--box-shadow-color);
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-left: 5px solid var(--primary-color); /* Destaque lateral */
+    border-left: 5px solid var(--primary-color);
 }
 
 .debtor-item:hover {
@@ -342,8 +359,8 @@ input:focus, select:focus {
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     color: var(--text-color);
-    max-height: 95vh; /* Ajuste para caber melhor na tela */
-    width: 95%; /* Usar 95% da largura da tela */
+    max-height: 95vh; 
+    width: 95%; 
     max-width: 900px;
     overflow-y: auto;
     display: flex;
@@ -354,17 +371,17 @@ input:focus, select:focus {
 .fullscreen-modal-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Alinha o título e o botão de fechar */
-    border-bottom: 1px solid var(--border-color);
+    align-items: flex-start; 
+    border-bottom: 1px solid var(--card-border-color);
     padding-bottom: 15px;
     margin-bottom: 20px;
-    flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
+    flex-wrap: wrap; 
 }
 
 .fullscreen-modal-header h2 {
     margin: 0;
     font-size: 1.5rem;
-    word-break: break-word; /* Previne estouro de nome longo */
+    word-break: break-word; 
 }
 
 .close-button {
@@ -384,7 +401,7 @@ input:focus, select:focus {
 .detail-section {
     display: grid;
     grid-template-columns: 1fr; /* Coluna única por padrão */
-    gap: 15px;
+    gap: 25px;
     margin-bottom: 20px;
 }
 
@@ -394,6 +411,17 @@ input:focus, select:focus {
     border-radius: 10px;
 }
 
+.detail-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+.detail-actions .button {
+    flex: 1 1 auto;
+}
+
 .payment-header {
     display: flex;
     justify-content: space-between;
@@ -401,7 +429,7 @@ input:focus, select:focus {
     margin-top: 20px;
     margin-bottom: 15px;
     padding-top: 15px;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--card-border-color);
 }
 
 .payments-grid {
@@ -421,29 +449,117 @@ input:focus, select:focus {
 .payment-actions {
     display: flex;
     gap: 15px;
-    flex-wrap: wrap; /* Responsividade: quebra linha em telas menores */
+    flex-wrap: wrap; 
     align-items: flex-end;
     padding-top: 15px;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--card-border-color);
 }
 
 .payment-actions .input-group {
-    flex: 1 1 150px; /* Permite que o input cresça, mas com um mínimo */
+    flex: 1 1 150px; 
     min-width: 120px;
 }
 
 .payment-actions button {
-    flex-shrink: 0; /* Previne que o botão encolha demais */
+    flex-shrink: 0; 
 }
 
+/* --- Estilos para o Modal de Parcelas --- */
+.all-installments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    padding-top: 10px;
+}
+
+.installment-square {
+    background-color: var(--input-background-color);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid var(--primary-color);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.installment-status {
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.summary-card {
+    background-color: var(--card-background-color);
+    border: 1px solid var(--card-border-color);
+    padding: 25px;
+    border-radius: 12px;
+    grid-column: 1 / -1; 
+}
+
+/* Estilos do switch */
 .toggle-switch {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-top: 10px;
 }
-/* Estilos do switch (permanecem os mesmos) */
-/* ... (Incluir o restante do código CSS de switch, se houver) ... */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--button-secondary-bg);
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
 
 /* --- RESPONSIVIDADE PC/TABLET (a partir de 768px) --- */
 @media (min-width: 768px) {
@@ -453,6 +569,11 @@ input:focus, select:focus {
 
     .detail-section {
         grid-template-columns: 2fr 1fr; /* Duas colunas em telas maiores */
+    }
+    
+    .detail-actions {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .payment-actions {
