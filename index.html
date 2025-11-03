@@ -6,7 +6,7 @@
     <title>Gerenciador de Empréstimos - Login</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon"> 
-    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -25,17 +25,14 @@
                     <label for="loginPassword">Senha:</label>
                     <input type="password" id="loginPassword" required>
                 </div>
-                <button type="submit" class="button">Entrar</button>
+                <button type="submit" class="button button-primary">Entrar</button>
             </form>
-            <p id="loginMessage" class="error-message" style="display: none;"></p>
-            <div class="auth-toggle">
-                Não tem conta? <a href="#" id="showRegister">Crie uma aqui</a>
-            </div>
+            <p>Não tem conta? <a href="#" id="showRegister">Cadastre-se</a></p>
         </div>
 
         <div class="auth-section register-section">
             <img src="logo.png" alt="Logo do Gerenciador de Empréstimos" class="login-logo"> 
-            <h2>Registro</h2>
+            <h2>Cadastro</h2>
             <form id="registerForm">
                 <div class="input-group">
                     <label for="registerEmail">E-mail:</label>
@@ -45,16 +42,12 @@
                     <label for="registerPassword">Senha:</label>
                     <input type="password" id="registerPassword" required>
                 </div>
-                <button type="submit" class="button">Registrar</button>
+                <button type="submit" class="button button-primary">Registrar</button>
             </form>
-            <p id="registerMessage" class="error-message" style="display: none;"></p>
-            <div class="auth-toggle">
-                Já tem conta? <a href="#" id="showLogin">Faça login</a>
-            </div>
+            <p>Já tem conta? <a href="#" id="showLogin">Login</a></p>
         </div>
     </div>
 
     <script src="script.js"></script>
-
 </body>
 </html>
