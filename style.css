@@ -1,8 +1,6 @@
-/* style.css */
-
 /* --- Variáveis de Tema (Base para cores e tipografia) --- */
 :root {
-    /* Cores do tema escuro (Dark Mode) - Moderno 2.0 (Teal/Cyan) */
+    /* Cores do tema escuro (Dark Mode) - Moderno 2.0 (Teal/Cyan e Dark Blue) */
     --primary-color: #00bcd4; /* Teal/Cyan Moderno */
     --accent-color: #00bcd4;
     --accent-color-hover: #0097a7; 
@@ -14,7 +12,7 @@
     --card-background-color: #272740; /* Fundo de card sólido (para modais e containers) */
     --card-glass-bg: rgba(45, 45, 75, 0.5); /* Fundo semi-transparente para o glassmorphism */
     --card-border-color: rgba(255, 255, 255, 0.15); /* Borda clara e leve para o efeito vidro */
-    --border-color: #424242;
+    --border-color: #424266;
     --input-background-color: #2c2c4d;
     --input-text-color: #ffffff;
     --modal-overlay-color: rgba(0, 0, 0, 0.7);
@@ -51,9 +49,191 @@ body.light-theme {
     --theme-icon: "☀️";
 }
 
-/* ... (O restante dos estilos existentes) ... */
+/* Base Geral */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s, color 0.3s;
+    min-height: 100vh;
+}
 
-/* Efeito Glassmorphism e organização para os itens de devedores */
+h1, h2, h3 {
+    color: var(--text-color);
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--accent-color-hover);
+}
+
+/* Containers e Layout */
+.container, .dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.auth-section {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px;
+    background-color: var(--card-background-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px var(--box-shadow-color);
+    text-align: center;
+}
+
+.login-logo {
+    width: 80px;
+    margin-bottom: 20px;
+}
+
+/* Header do Dashboard */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Estilo para Botões */
+.button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+/* Botão Primário (Adicionar Novo Devedor, Salvar) */
+.button {
+    background-color: var(--primary-color);
+    color: var(--button-primary-text-color);
+}
+
+.button:hover {
+    background-color: var(--accent-color-hover);
+}
+
+.button:active {
+    transform: scale(0.98);
+}
+
+/* Botão Secundário (Filtros, Gerar Código, Preencher Valor) */
+.button-secondary {
+    background-color: var(--button-secondary-bg);
+    color: var(--text-color);
+}
+
+.button-secondary:hover {
+    background-color: var(--button-secondary-hover-bg);
+}
+
+/* Botão de Excluir */
+.button-delete {
+    background-color: var(--error-color);
+    color: white;
+}
+
+/* Botão de Tema */
+.theme-toggle-button {
+    background: none;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.theme-toggle-button::before {
+    content: var(--theme-icon);
+}
+
+.theme-toggle-button:hover {
+    background-color: var(--button-secondary-bg);
+}
+
+
+/* Formulários e Inputs */
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--input-background-color);
+    color: var(--input-text-color);
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: border-color 0.2s;
+}
+
+.input-group input:focus, .input-group select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+/* Mensagens */
+.error-message {
+    color: var(--error-color);
+    background-color: rgba(255, 82, 82, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.loading-message {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+/* Lista de Devedores */
+.debtors-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* EFEITO GLASSMORPHISM para os Cartões de Devedores */
 .debtor-item {
     /* Alterações para Glassmorphism */
     background-color: var(--card-glass-bg); /* Fundo semi-transparente */
@@ -61,7 +241,7 @@ body.light-theme {
     -webkit-backdrop-filter: blur(10px); /* Suporte para navegadores webkit */
     border: 1px solid var(--card-border-color); /* Borda de cor leve */
     
-    /* Outros estilos existentes e aprimorados */
+    /* Outros estilos */
     padding: 25px;
     border-radius: 16px; /* Aumentado para melhor efeito */
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); /* Sombra para o efeito 3D */
@@ -76,7 +256,306 @@ body.light-theme {
     box-shadow: 0 16px 40px 0 rgba(31, 38, 135, 0.5);
 }
 
-/* NOVO: Estilo para o Painel de Dashboard (Efeito Glassmorphism) */
+.debtor-info h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+}
+
+.debtor-status-bar {
+    height: 10px;
+    background-color: var(--input-background-color);
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.debtor-status-fill {
+    height: 100%;
+    background-color: var(--success-color);
+    border-radius: 5px;
+    transition: width 0.5s ease-out;
+}
+
+.debtor-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+/* Modais */
+.modal {
+    display: none; /* Escondido por padrão */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: var(--modal-overlay-color);
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    background-color: var(--modal-background-color);
+    margin: 5% auto; /* 5% do topo e centralizado */
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: var(--text-color);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.close-button {
+    color: var(--text-color);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Detalhes do Devedor */
+.debtor-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 20px;
+}
+
+.debtor-details-grid p {
+    margin: 0;
+    padding: 5px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+.debtor-details-grid p:last-child {
+    border-bottom: none;
+}
+
+.debtor-details-grid strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Pagamentos */
+.payment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.payments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.payment-item {
+    background-color: var(--input-background-color);
+    padding: 10px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+}
+
+.payment-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.payment-actions .input-group {
+    flex: 1 1 200px;
+    margin: 0;
+}
+
+.payment-actions button {
+    flex: 0 0 auto;
+}
+
+/* Switch */
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    grid-column: 1 / -1; /* Ocupa a largura total na grid de detalhes */
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--button-secondary-bg);
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* All Installments Modal */
+.fullscreen-modal-content {
+    max-width: 90%;
+    margin: 2% auto;
+    padding: 30px;
+    background-color: var(--modal-background-color);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: var(--text-color);
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.fullscreen-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.fullscreen-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.all-installments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.installment-square {
+    background-color: var(--input-background-color);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid;
+    transition: transform 0.2s ease-in-out;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 120px;
+}
+
+.installment-square.paid {
+    border-left-color: var(--success-color);
+}
+
+.installment-square.unpaid {
+    border-left-color: var(--error-color);
+}
+
+.installment-square h4 {
+    margin: 0 0 5px 0;
+    font-size: 1.1em;
+    color: var(--primary-color);
+}
+
+.installment-square p {
+    margin: 2px 0;
+    font-size: 0.9em;
+}
+
+.installment-mark-paid {
+    background-color: var(--success-color);
+    color: white;
+    padding: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+    margin-top: 10px;
+    transition: opacity 0.2s;
+}
+
+.installment-mark-paid:hover {
+    opacity: 0.8;
+}
+
+/* NOVO ESTILO: Painel de Dashboard (Efeito Glassmorphism) */
 .dashboard-stats-panel {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -113,4 +592,34 @@ body.light-theme {
     font-size: 2.2em;
     font-weight: 700;
     color: var(--primary-color);
+}
+
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .header-actions {
+        margin-top: 15px;
+        align-self: stretch;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .debtor-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .payment-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .payment-actions .input-group {
+        flex: 1 1 100%;
+    }
+    .dashboard-stats-panel {
+        grid-template-columns: 1fr;
+    }
 }
