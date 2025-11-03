@@ -31,12 +31,11 @@ if (themeToggleButton) {
 }
 
 // --- Configuração e Inicialização do Firebase ---
-// ⚠️ ATENÇÃO: SUBSTITUA os valores de `firebaseConfig` abaixo pelas SUAS credenciais
-//            REAIS do seu projeto no console do Firebase.
+// ⚠️ ATENÇÃO: Seus valores REAIS foram inseridos aqui.
 const firebaseConfig = {
-    apiKey: "AIzaSyAH0w8X7p6D6c5Ga4Ma0eIJx5J4BtdlG2M", // ⬅️ Troque aqui
-    authDomain: "russo2.firebaseapp.com", // ⬅️ Troque aqui
-    projectId: "russo2", // ⬅️ Troque aqui
+    apiKey: "AIzaSyAH0w8X7p6D6c5Ga4Ma0eIJx5J4BtdlG2M", // <-- SEU API KEY
+    authDomain: "russo2.firebaseapp.com", // <-- SEU DOMÍNIO
+    projectId: "russo2", // <-- SEU PROJECT ID
     storageBucket: "russo2.firebasestorage.app",
     messagingSenderId: "590812147841",
     appId: "1:590812147841:web:da98880beb257e0de3dd80"
@@ -46,6 +45,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+// ... resto do código ...
 
 let currentUserId = null;
 let debtors = [];
@@ -66,6 +66,7 @@ function formatCurrency(amount) {
 }
 
 function calculateRemaining(debtor) {
+    // Garante que payments é um array antes de tentar reduzir
     const totalPaid = (debtor.payments || []).reduce((sum, p) => sum + p.amount, 0);
     return debtor.totalDebt - totalPaid;
 }
@@ -150,7 +151,6 @@ function setupFirestoreListener() {
         .onSnapshot(snapshot => {
             debtors = [];
             snapshot.forEach(doc => {
-                // Garante que payments é um array, mesmo que não exista
                 const data = doc.data();
                 if (!data.payments) {
                     data.payments = [];
@@ -255,7 +255,7 @@ if (addPaymentButton) {
 
         const remaining = calculateRemaining(currentDebtor);
         if (amount > remaining) {
-             showError(`O valor excede a dívida restante de ${formatCurrency(remaining)}.`, 'detailModalMessage');
+             showError(`O valor excede a dívida restante de ${formatCurrency(remaining)}.`, 'errorMessage'); // Usando errorMessage do dashboard
             return;
         }
         
@@ -266,7 +266,8 @@ if (addPaymentButton) {
 
             const newPayment = {
                 amount: amount,
-                timestamp: firebase.firestore.Timestamp.fromDate(date)
+                // Armazena como Timestamp do Firebase
+                timestamp: firebase.firestore.Timestamp.fromDate(date) 
             };
 
             // Adiciona o novo pagamento ao array existente no Firestore
@@ -389,7 +390,10 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname 
             window.location.href = 'dashboard.html';
         } else {
             // Garante que o login é a tela inicial (evita flash de registro)
-            toggleAuthView('login'); 
+            // Checagem de pathname evita que execute em dashboard.html
+            if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+                toggleAuthView('login');
+            }
         }
     });
 }
@@ -465,7 +469,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
     });
 
 
-    // --- Lógica de Adicionar/Salvar Devedor ---
+    // --- Lógica de Adicionar/Salvar Devedor (Função Completa Reintegrada) ---
 
     if (addDebtorButton) {
         addDebtorButton.addEventListener('click', () => {
@@ -492,16 +496,16 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             const totalDebt = parseFloat(document.getElementById('debtorTotalDebt').value);
             const initialDateString = document.getElementById('debtorInitialDate').value;
             const frequency = document.getElementById('debtorFrequency').value;
-            const id = document.getElementById('debtorId').value;
+            const id = document.getElementById('debtorId').value; // Usado para futura edição
 
-            if (isNaN(totalDebt) || totalDebt <= 0 || !name || !initialDateString) {
-                showError('Preencha todos os campos corretamente.', 'errorMessage');
+            if (isNaN(totalDebt) || totalDebt <= 0 || !name || !initialDateString || !frequency) {
+                showError('Preencha todos os campos corretamente (Nome, Dívida, Data e Frequência).', 'errorMessage');
                 return;
             }
 
             try {
                 const initialDate = new Date(initialDateString);
-                // Corrige o timezone
+                // Corrige o timezone para garantir que a data salva seja a correta
                 initialDate.setDate(initialDate.getDate() + 1); 
 
                 const newDebtorData = {
