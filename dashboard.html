@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciador de Empréstimos - Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
@@ -16,74 +15,117 @@
         <header class="header">
             <img src="logo.png" alt="Logo do Gerenciador de Empréstimos" class="app-logo"> 
             <h1>Meus Devedores</h1>
-            <div class="header-actions">
-                <button id="addDebtorButton" class="button button-primary">Adicionar Novo Devedor</button>
+            <div class="header-actions" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end;">
+                <button id="addDebtorButton" class="button">Adicionar Novo Devedor</button>
                 
-                <div> <button id="themeToggleButton" class="theme-toggle-button" aria-label="Alternar Tema"></button>
-                    <button id="logoutButton" class="button button-secondary">Sair</button>
+                <div style="display: flex; gap: 10px;">
+                    <button id="themeToggleButton" class="theme-toggle-button" aria-label="Tema"></button>
+                    <button id="logoutButton" class="button">Sair</button>
                 </div>
             </div>
         </header>
 
-        <section class="filter-controls" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-            <button id="filterAllButton" class="button button-secondary active">Todos</button>
-            <button id="filterDailyButton" class="button button-secondary">Diário</button>
-            <button id="filterWeeklyButton" class="button button-secondary">Semanal</button>
-            <button id="filterMonthlyButton" class="button button-secondary">Mensal</button>
-        </section>
+        <p id="errorMessage" class="error-message" style="display: none;"></p>
 
-        <section class="debtors-grid" id="debtorsGrid">
-            </section>
+        <div class="dashboard-content">
+            <div class="filter-actions">
+                <button id="filterAllButton" class="button">Todos</button>
+                <button id="filterDailyButton" class="button button-secondary">Diários</button>
+                <button id="filterWeeklyButton" class="button button-secondary">Semanais</button>
+                <button id="filterMonthlyButton" class="button button-secondary">Mensais</button>
+            </div>
+            <div id="debtorsList" class="debtors-list">
+                <p class="loading-message">Carregando devedores...</p>
+            </div>
+        </div>
     </div>
 
-    <div id="addDebtorModal" class="modal">
-        <div class="add-debtor-modal-content">
-            <div class="modal-header">
-                <h2>Adicionar Novo Devedor</h2>
-                <span class="close-button">&times;</span>
-            </div>
-            <form id="addDebtorForm">
+    
+<div id="addEditDebtorModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="addEditModalTitle">Adicionar Novo Devedor</h2>
+            <span class="close-button">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="addEditDebtorForm">
                 <div class="input-group">
-                    <label for="debtorName">Nome do Devedor:</label>
+                    <label for="debtorName">Nome:</label>
                     <input type="text" id="debtorName" required>
                 </div>
                 <div class="input-group">
-                    <label for="initialAmount">Valor Inicial do Empréstimo (R$):</label>
-                    <input type="number" id="initialAmount" step="0.01" required>
+                    <label for="debtorDescription">Descrição:</label>
+                    <input type="text" id="debtorDescription">
                 </div>
                 <div class="input-group">
-                    <label for="startDate">Data de Início:</label>
-                    <input type="date" id="startDate" required>
+                    <label for="loanedAmount">Valor Emprestado:</label>
+                    <input type="number" id="loanedAmount" step="0.01" required>
                 </div>
+
                 <div class="input-group">
-                    <label for="frequency">Frequência de Cobrança:</label>
+                    <label for="frequency">Frequência de Recebimento:</label>
                     <select id="frequency" required>
                         <option value="daily">Diário</option>
                         <option value="weekly">Semanal</option>
                         <option value="monthly">Mensal</option>
                     </select>
                 </div>
+
                 <div class="input-group">
-                    <label for="installments">Número de Parcelas (opcional):</label>
-                    <input type="number" id="installments" min="1">
+                    <label for="calculationType">Tipo de Cálculo:</label>
+                    <select id="calculationType">
+                        <option value="perInstallment">Valor por Parcela</option>
+                        <option value="percentage">Porcentagem de Juros</option>
+                    </select>
                 </div>
-                <button type="submit" class="button button-primary" style="margin-top: 20px;">Adicionar</button>
+
+                <div id="perInstallmentFields">
+                    <div class="input-group">
+                        <label for="amountPerInstallmentInput">Valor por Parcela:</label>
+                        <input type="number" id="amountPerInstallmentInput" step="0.01">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="installments">Número de Parcelas:</label>
+                    <input type="number" id="installments" required>
+                </div>
+
+                <div id="percentageFields" style="display: none;">
+                    <div class="input-group">
+                        <label for="interestPercentageInput">Porcentagem de Juros (%):</label>
+                        <input type="number" id="interestPercentageInput" step="0.01">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="startDate">Data de Início:</label>
+                    <input type="date" id="startDate" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="saveDebtorButton" class="button">Salvar</button>
+                </div>
             </form>
         </div>
     </div>
+</div>
 
-    <div id="debtorDetailsModal" class="modal">
-        <div class="debtor-details-modal-content">
-            <div class="fullscreen-modal-header">
-                <h2 id="detailName"></h2>
-                <span class="close-button">&times;</span>
-            </div>
-
-            <div class="summary-info">
-                <p><strong>Total Devido:</strong> <span id="detailTotalDue"></span></p>
-                <p><strong>Total Pago:</strong> <span id="detailTotalPaid"></span></p>
-                <p><strong>Restante:</strong> <span id="detailRemaining"></span></p>
-                <p><strong>Início:</strong> <span id="detailStartDate"></span></p>
+    
+<div id="debtorDetailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="detailDebtorName"></h2>
+            <span class="close-button">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="debtor-details-grid">
+                <p><strong>Descrição:</strong> <span id="detailDebtorDescription"></span></p>
+                <p><strong>Valor Emprestado:</strong> <span id="detailLoanedAmount"></span></p>
+                <p><strong>Total a Receber:</strong> <span id="detailTotalToReceive"></span></p>
+                <p><strong>% Juros:</strong> <span id="detailInterestPercentage"></span></p>
+                <p><strong>Parcelas:</strong> <span id="detailInstallments"></span></p>
+                <p><strong>Valor por Parcela:</strong> <span id="detailAmountPerInstallment"></span></p>
+                <p><strong>Data Início:</strong> <span id="detailStartDate"></span></p>
                 <p><strong>Frequência:</strong> <span id="detailFrequency"></span></p>
                 <div class="toggle-switch">
                     <label for="toggleTotalToReceive">Esconder Total a Receber:</label>
@@ -110,63 +152,15 @@
                     <input type="date" id="paymentDate">
                 </div>
                 <button id="fillAmountButton" class="button button-secondary">Preencher Valor</button>
-                <button id="addPaymentButton" class="button button-primary">Adicionar Pagamento</button>
-            </div>
-            
-            <div style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-                <button id="editLoanButton" class="button button-secondary">Editar Empréstimo</button>
-                <button id="deleteDebtorButton" class="button" style="background-color: var(--error-color); color: white;">Excluir Devedor</button>
+                <button id="addPaymentButton" class="button">Adicionar Pagamento</button>
             </div>
         </div>
     </div>
+</div>
 
-    <div id="editLoanModal" class="modal">
-        <div class="edit-loan-modal-content">
-            <div class="modal-header">
-                <h2>Editar Empréstimo</h2>
-                <span class="close-button">&times;</span>
-            </div>
-            <form id="editLoanForm">
-                <div class="input-group">
-                    <label for="editDebtorName">Nome do Devedor:</label>
-                    <input type="text" id="editDebtorName" required>
-                </div>
-                <div class="input-group">
-                    <label for="editInitialAmount">Valor Inicial do Empréstimo (R$):</label>
-                    <input type="number" id="editInitialAmount" step="0.01" required>
-                </div>
-                <div class="input-group">
-                    <label for="editStartDate">Data de Início:</label>
-                    <input type="date" id="editStartDate" required>
-                </div>
-                <div class="input-group">
-                    <label for="editFrequency">Frequência de Cobrança:</label>
-                    <select id="editFrequency" required>
-                        <option value="daily">Diário</option>
-                        <option value="weekly">Semanal</option>
-                        <option value="monthly">Mensal</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="editInstallments">Número de Parcelas (opcional):</label>
-                    <input type="number" id="editInstallments" min="1">
-                </div>
-                <button type="submit" class="button button-primary" style="margin-top: 20px;">Salvar Alterações</button>
-            </form>
-        </div>
-    </div>
+<script src="script.js"></script>
 
-    <div id="allInstallmentsModal" class="modal">
-        <div class="all-installments-modal-content">
-            <div class="fullscreen-modal-header">
-                <h2 id="allInstallmentsTitle">Todas as Parcelas</h2>
-                <span class="close-button">&times;</span>
-            </div>
-            <div id="allInstallmentsGrid" class="all-installments-grid">
-                </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
 </body>
 </html>
+
+
