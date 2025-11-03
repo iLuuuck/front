@@ -1,217 +1,71 @@
-/* --- Variáveis de Tema (Cores Novas) --- */
-
-/* DARK MODE: Profissional (Deep Indigo/Teal) com Efeito Vidro */
+/* --- Variáveis de Tema (Base para cores e tipografia) --- */
 :root {
-    --primary-color: #00bcd4; /* Teal/Ciano Moderno (Cor de Destaque) */
-    --accent-color: #00bcd4;
-    --accent-color-hover: #0097a7;
-    --error-color: #f44336;
+    /* Cores do tema escuro (Dark Mode) - Mais vivas e modernas */
+    --primary-color: #00e676; /* Verde VIBRANTE */
+    --accent-color: #00e676;
+    --accent-color-hover: #00c853; /* Verde um pouco mais escuro */
+    --error-color: #ff5252;
     --success-color: #4caf50;
 
-    --background-color: #1a1a2e; /* Fundo Deep Indigo/Quase Preto */
-    --text-color: #e0e0e0;
-    
-    /* GLASSMORHPISM (Efeito Vidro) */
-    --card-background-color: rgba(44, 44, 67, 0.4); /* Fundo semi-transparente */
-    --card-border-color: rgba(255, 255, 255, 0.15); /* Borda leve (mais visível no escuro) */
-    --input-background-color: #383857;
-    --input-text-color: #ffffff;
-    --box-shadow-color: rgba(0, 0, 0, 0.7);
-    
-    --modal-overlay-color: rgba(0, 0, 0, 0.8);
-    --modal-background-color: #2c2c43;
-    --button-secondary-bg: #444466;
-    --button-secondary-hover-bg: #5a5a80;
-    --button-primary-text-color: #ffffff;
-    --theme-icon: "☀️";
+    --background-color: #121212; /* Fundo bem escuro */
+    --text-color: #e0e0e0; /* Texto cinza claro */
+    --card-background-color: rgba(30, 30, 30, 0.6); /* Glassmorphism - Fundo semi-transparente escuro */
+    --card-backdrop-filter: blur(8px); /* Efeito de vidro */
+    --card-border-color: rgba(66, 66, 66, 0.3); /* Borda suave do cartão */
+    --border-color: #424242; /* Borda sutil */
+    --input-background-color: #2c2c2c;
+    --input-text-color: #ffffff; /* Texto do input branco puro */
+    --modal-overlay-color: rgba(0, 0, 0, 0.7);
+    --modal-background-color: #242424;
+    --button-secondary-bg: #424242;
+    --button-secondary-hover-bg: #5a5a5a;
+    --button-primary-text-color: #121212; /* Texto escuro para botões primários */
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --secondary-color: #1e1e1e; /* Cor secundária para alguns elementos */
 }
 
-/* LIGHT MODE: Limpo e Profissional (Clean White/Blue) com Efeito Vidro */
-body.light-theme {
-    --primary-color: #1a73e8; /* Azul Profissional */
-    --accent-color: #1a73e8;
-    --accent-color-hover: #145cb3;
-    --error-color: #d32f2f;
-    --success-color: #388e3c;
-    
-    --background-color: #f0f2f5; /* Fundo cinza claro */
-    --text-color: #333333;
-    
-    /* GLASSMORHPISM (Efeito Vidro) */
-    --card-background-color: rgba(255, 255, 255, 0.6); /* Fundo semi-transparente */
-    --card-border-color: rgba(0, 0, 0, 0.08); /* Borda leve (mais visível no claro) */
+.light-theme {
+    /* Cores do tema claro (Light Mode) */
+    --primary-color: #00e676;
+    --accent-color: #00e676;
+    --accent-color-hover: #00c853;
+    --error-color: #ff5252;
+    --success-color: #4caf50;
+
+    --background-color: #f0f2f5; /* Fundo claro */
+    --text-color: #1e1e1e; /* Texto escuro */
+    --card-background-color: rgba(255, 255, 255, 0.7); /* Glassmorphism - Fundo semi-transparente claro */
+    --card-backdrop-filter: blur(8px);
+    --card-border-color: rgba(189, 189, 189, 0.5); /* Borda suave do cartão */
+    --border-color: #bdbdbd; /* Borda sutil */
     --input-background-color: #ffffff;
-    --input-text-color: #333333;
-    --box-shadow-color: rgba(0, 0, 0, 0.1);
-    
+    --input-text-color: #1e1e1e;
     --modal-overlay-color: rgba(0, 0, 0, 0.5);
     --modal-background-color: #ffffff;
     --button-secondary-bg: #e0e0e0;
-    --button-secondary-hover-bg: #cccccc;
-    --button-primary-text-color: #ffffff;
-    --theme-icon: "🌙";
+    --button-secondary-hover-bg: #bdbdbd;
+    --button-primary-text-color: #ffffff; /* Texto claro para botões primários */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --secondary-color: #ffffff;
 }
 
-/* --- Estilos Gerais (Mobile First) --- */
-* {
-    box-sizing: border-box;
+/* --- Estilos Gerais --- */
+body {
+    font-family: 'Poppins', sans-serif; /* Fonte moderna */
     margin: 0;
     padding: 0;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
-    transition: background-color 0.4s ease, color 0.4s ease;
+    transition: background-color 0.3s, color 0.3s;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
-h1, h2, h3 {
-    color: var(--primary-color);
-    margin-bottom: 10px;
-}
+/* Adicionado no HTML: @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap'); */
 
-.button {
-    background-color: var(--primary-color);
-    color: var(--button-primary-text-color);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: 600;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.button:hover {
-    background-color: var(--accent-color-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.button-secondary {
-    background-color: var(--button-secondary-bg);
-    color: var(--text-color);
-}
-
-.button-secondary:hover {
-    background-color: var(--button-secondary-hover-bg);
-}
-
-.button-delete {
-    background-color: var(--error-color);
-    color: var(--button-primary-text-color);
-}
-
-.button-delete:hover {
-    background-color: #c43226; /* Um tom mais escuro do erro */
-}
-
-input[type="text"], input[type="number"], input[type="email"], input[type="password"], input[type="date"], select {
-    width: 100%;
-    padding: 12px;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    border: 1px solid var(--card-border-color);
-    border-radius: 8px;
-    background-color: var(--input-background-color);
-    color: var(--input-text-color);
-    font-size: 1em;
-    transition: border-color 0.3s ease;
-}
-
-input:focus, select:focus {
-    border-color: var(--primary-color);
-    outline: none;
-    box-shadow: 0 0 0 2px var(--primary-color);
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: var(--text-color);
-}
-
-.error-message {
-    color: var(--error-color);
-    background-color: rgba(255, 0, 0, 0.1);
-    border: 1px solid var(--error-color);
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.loading-message {
-    color: var(--text-color);
-    opacity: 0.7;
-    text-align: center;
-    padding: 10px;
-    grid-column: 1 / -1; /* Ocupa toda a largura do grid */
-}
-
-.app-logo {
-    width: 50px;
-    height: 50px;
-}
-
-/* --- Estilos de Login (index.html) --- */
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.auth-section {
-    background-color: var(--card-background-color);
-    border: 1px solid var(--card-border-color);
-    backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px);
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 8px 32px 0 var(--box-shadow-color);
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-    opacity: 0;
-    transform: scale(0.9);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.auth-section.active {
-    opacity: 1;
-    transform: scale(1);
-}
-
-.login-logo {
-    width: 80px;
-    margin-bottom: 25px;
-    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
-}
-
-.auth-toggle {
-    margin-top: 20px;
-    font-size: 0.9em;
-}
-
-.auth-toggle a {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 600;
-}
-
-/* --- Estilos do Dashboard (dashboard.html) --- */
-.dashboard-container {
-    width: 95%;
+.dashboard-container, .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px 0;
+    padding: 20px;
 }
 
 .header {
@@ -219,372 +73,296 @@ input:focus, select:focus {
     justify-content: space-between;
     align-items: center;
     padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
     margin-bottom: 20px;
-    border-bottom: 1px solid var(--card-border-color);
 }
 
 .header h1 {
     font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
     margin: 0;
-    flex-grow: 1;
-    margin-left: 15px;
 }
 
+.app-logo {
+    height: 40px;
+    width: auto;
+}
+
+/* Estilos de Ações do Cabeçalho */
 .header-actions {
     display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.theme-toggle-button {
-    background: none;
-    border: 2px solid var(--primary-color);
-    color: var(--primary-color);
-    font-size: 1.2rem;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    display: flex;
-    justify-content: center;
+    gap: 10px;
     align-items: center;
 }
 
-.theme-toggle-button:hover {
-    background-color: var(--primary-color);
-    color: var(--button-primary-text-color);
-    transform: scale(1.05);
-}
-
-.theme-toggle-button::before {
-    content: var(--theme-icon);
-}
-
-.filter-actions {
+.header-actions > div {
     display: flex;
     gap: 10px;
-    flex-wrap: wrap;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--card-border-color);
 }
 
-.filter-actions .button {
-    border-radius: 20px;
-    padding: 8px 18px;
-    font-size: 0.9em;
-    background-color: var(--button-secondary-bg);
-    color: var(--text-color);
-    border: 1px solid transparent;
+/* --- Estilos dos Cartões de Devedores (Glassmorphism) --- */
+.debtors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsivo */
+    gap: 20px;
+    padding-bottom: 20px;
 }
 
-.filter-actions .button.active {
-    background-color: var(--primary-color);
-    color: var(--button-primary-text-color);
+.debtor-card {
+    /* Efeito de Vidro (Glassmorphism) */
+    background-color: var(--card-background-color);
+    backdrop-filter: var(--card-backdrop-filter);
+    -webkit-backdrop-filter: var(--card-backdrop-filter); /* Compatibilidade Safari */
+    
+    border: 1px solid var(--card-border-color); /* Borda suave */
+    border-left: 5px solid var(--primary-color); /* Borda de destaque */
+    
+    padding: 20px;
+    border-radius: 15px; /* Bordas mais arredondadas */
+    box-shadow: 0 8px 32px var(--shadow-color); /* Sombra mais suave */
+    
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.debtor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px var(--shadow-color);
+}
+
+.debtor-card h4 {
+    margin-top: 0;
+    color: var(--primary-color);
+    font-size: 1.2rem;
     font-weight: 600;
 }
 
-.filter-actions .button:hover:not(.active) {
+.debtor-card-info {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.debtor-card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: flex-end; /* Alinha botões à direita */
+}
+
+/* Detalhes e Modais (Melhorando a consistência do 2.0) */
+.debtor-details-modal-content,
+.add-debtor-modal-content,
+.edit-loan-modal-content {
+    background-color: var(--modal-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    box-shadow: 0 10px 25px var(--shadow-color);
+    padding: 30px;
+}
+
+/* Estilos para o Modal de Pagamentos */
+.payment-actions {
+    display: flex;
+    flex-wrap: wrap; /* Permite quebrar linha em mobile */
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    align-items: flex-end; /* Alinha itens na base */
+}
+
+.payment-actions .input-group, 
+.payment-actions button {
+    flex: 1 1 45%; /* Ocupa metade da linha em PC/Tablet */
+    min-width: 150px; /* Garante tamanho mínimo */
+}
+
+/* --- Botões e Inputs --- */
+.button {
+    font-weight: 600;
+    border-radius: 8px; /* Mais modernos */
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    border: none;
+}
+
+.button-primary {
+    background-color: var(--primary-color);
+    color: var(--button-primary-text-color);
+}
+
+.button-primary:hover {
+    background-color: var(--accent-color-hover);
+}
+
+.button-secondary {
+    background-color: var(--button-secondary-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.button-secondary:hover {
     background-color: var(--button-secondary-hover-bg);
 }
 
-/* GRID RESPONSIVO: Lista de Devedores */
-.debtors-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-    gap: 25px;
-    padding: 10px 0;
-}
-
-/* ESTILO GLASSMORHISM para o Item do Devedor (Os "Quadradinhos") */
-.debtor-item {
-    background-color: var(--card-background-color);
-    border: 1px solid var(--card-border-color);
-    backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px 0 var(--box-shadow-color);
+.theme-toggle-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--button-secondary-bg);
+    border: 1px solid var(--border-color);
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-left: 5px solid var(--primary-color);
-}
-
-.debtor-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px var(--box-shadow-color);
-}
-
-.debtor-item h3 {
-    margin-top: 0;
-    font-size: 1.25rem;
-    color: var(--primary-color);
-}
-
-.debtor-item p {
-    font-size: 0.9em;
-    line-height: 1.6;
-    margin: 5px 0;
-}
-
-.debtor-item strong {
-    font-weight: 600;
-}
-
-/* Estilos de Modal de Detalhes (Adaptado para Responsividade) */
-.fullscreen-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--modal-overlay-color);
+    transition: background-color 0.2s;
+    /* Substitua pelo seu ícone de tema (sol/lua) */
+    /* Exemplo: use um ícone de fonte ou SVG aqui. */
+    content: "🌙"; /* Ícone de Lua no Dark Mode */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    font-size: 1.2rem;
 }
 
-.fullscreen-modal.open {
-    opacity: 1;
-    visibility: visible;
+.light-theme .theme-toggle-button {
+    background-color: var(--button-secondary-bg);
+    content: "☀️"; /* Ícone de Sol no Light Mode */
 }
 
-.fullscreen-modal-content {
-    background-color: var(--modal-background-color);
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    color: var(--text-color);
-    max-height: 95vh; 
-    width: 95%; 
-    max-width: 900px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-}
-
-.fullscreen-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start; 
-    border-bottom: 1px solid var(--card-border-color);
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-    flex-wrap: wrap; 
-}
-
-.fullscreen-modal-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    word-break: break-word; 
-}
-
-.close-button {
-    background: none;
-    border: none;
-    color: var(--text-color);
-    font-size: 2rem;
-    cursor: pointer;
-    transition: color 0.2s ease;
-    line-height: 1;
-}
-
-.close-button:hover {
-    color: var(--error-color);
-}
-
-.detail-section {
-    display: grid;
-    grid-template-columns: 1fr; /* Coluna única por padrão */
-    gap: 25px;
-    margin-bottom: 20px;
-}
-
-.detail-section-info {
+/* Inputs */
+input[type="text"], 
+input[type="number"], 
+input[type="email"], 
+input[type="password"],
+input[type="date"],
+select,
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 8px; /* Mais arredondado */
+    border: 1px solid var(--border-color);
     background-color: var(--input-background-color);
-    padding: 15px;
-    border-radius: 10px;
+    color: var(--input-text-color);
+    padding: 10px;
+    transition: border-color 0.2s;
 }
 
-.detail-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-content: flex-start;
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
 }
 
-.detail-actions .button {
-    flex: 1 1 auto;
+/* Login/Registro */
+.auth-section {
+    background-color: var(--card-background-color);
+    backdrop-filter: var(--card-backdrop-filter);
+    -webkit-backdrop-filter: var(--card-backdrop-filter);
+    border: 1px solid var(--card-border-color);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px var(--shadow-color);
+    padding: 40px;
+    width: 400px;
+    margin: 50px auto;
 }
 
-.payment-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    margin-bottom: 15px;
-    padding-top: 15px;
-    border-top: 1px solid var(--card-border-color);
+.login-logo {
+    max-width: 100px;
+    display: block;
+    margin: 0 auto 20px;
+}
+
+
+/* --- Estilos de Responsividade (Media Queries) --- */
+
+/* Mobile (Máximo de 599px) */
+@media (max-width: 599px) {
+    .dashboard-container, .container {
+        padding: 10px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        width: 100%;
+        margin-top: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .header-actions > div {
+        flex-direction: row; /* Mantém botões pequenos na linha */
+        gap: 5px !important;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .header-actions button:not(.theme-toggle-button) {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .debtors-grid {
+        grid-template-columns: 1fr; /* Uma coluna em mobile */
+    }
+    
+    .auth-section {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .payment-actions {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .payment-actions .input-group, 
+    .payment-actions button {
+        flex: 1 1 100%; /* Ocupa 100% da linha em mobile */
+        min-width: unset;
+    }
+    
+    .installment-square {
+        grid-template-columns: 1fr;
+    }
+
+    .debtor-details-modal-content,
+    .add-debtor-modal-content,
+    .edit-loan-modal-content {
+        padding: 20px;
+        margin-top: 10px;
+        width: 95%;
+        box-sizing: border-box;
+    }
+}
+
+/* --- Manutenção de Estilos Existentes --- */
+/* (Mantenha o restante do seu CSS original aqui, garantindo que as classes `.modal`, 
+`.payments-grid`, `.installment-square`, etc., funcionem com as novas variáveis.) */
+
+/* Exemplo de compatibilidade com classes existentes: */
+.modal {
+    /* Mantenha sua lógica de modal, apenas assegure que o fundo esteja com a cor de overlay do 2.0 */
+    background-color: var(--modal-overlay-color);
 }
 
 .payments-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 15px;
-    margin-bottom: 20px;
-}
-
-.payment-item {
-    background-color: var(--button-secondary-bg);
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.payment-actions {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap; 
-    align-items: flex-end;
-    padding-top: 15px;
-    border-top: 1px solid var(--card-border-color);
-}
-
-.payment-actions .input-group {
-    flex: 1 1 150px; 
-    min-width: 120px;
-}
-
-.payment-actions button {
-    flex-shrink: 0; 
-}
-
-/* --- Estilos para o Modal de Parcelas --- */
-.all-installments-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
-    padding-top: 10px;
 }
 
 .installment-square {
-    background-color: var(--input-background-color);
-    padding: 15px;
+    /* Use cores do tema 2.0 */
+    background-color: var(--secondary-color);
+    border-left: 5px solid;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 5px solid var(--primary-color);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.installment-status {
-    font-weight: bold;
-    font-size: 0.9em;
-    margin-top: 5px;
-}
-
-.summary-card {
-    background-color: var(--card-background-color);
-    border: 1px solid var(--card-border-color);
-    padding: 25px;
-    border-radius: 12px;
-    grid-column: 1 / -1; 
-}
-
-/* Estilos do switch */
-.toggle-switch {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-}
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 34px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--button-secondary-bg);
-    transition: .4s;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: .4s;
-}
-
-input:checked + .slider {
-    background-color: var(--primary-color);
-}
-
-input:focus + .slider {
-    box-shadow: 0 0 1px var(--primary-color);
-}
-
-input:checked + .slider:before {
-    transform: translateX(26px);
-}
-
-.slider.round {
-    border-radius: 34px;
-}
-
-.slider.round:before {
-    border-radius: 50%;
-}
-
-
-/* --- RESPONSIVIDADE PC/TABLET (a partir de 768px) --- */
-@media (min-width: 768px) {
-    .header h1 {
-        font-size: 2rem;
-    }
-
-    .detail-section {
-        grid-template-columns: 2fr 1fr; /* Duas colunas em telas maiores */
-    }
-    
-    .detail-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .payment-actions {
-        flex-wrap: nowrap; /* Não quebra linha em telas maiores */
-    }
-    
-    .payment-actions .input-group {
-        flex: 1;
-    }
-    
-    .payment-actions button {
-        flex: 0 1 auto;
-    }
+    padding: 15px;
+    box-shadow: 0 2px 4px var(--shadow-color);
 }
