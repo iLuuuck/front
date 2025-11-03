@@ -1,76 +1,76 @@
-/* === MANFRED GLASS EDITION 2.0 === */
+/* === RUSSO EMPRESTIMOS 2.0 — Glass & Gradient Edition === */
 
-/* ======== BASE DE TEMA ======== */
+/* Variáveis de Tema */
 :root {
   --primary: #21c985;
-  --accent: linear-gradient(90deg, #21c985, #00c3ff);
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --border-light: rgba(255, 255, 255, 0.25);
-  --text: #f5f5f5;
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  --blur: blur(20px);
+  --text: #ffffff;
+  --background: radial-gradient(ellipse at top, #0d0e11, #050506);
+  --glass-bg: rgba(255, 255, 255, 0.07);
+  --border: rgba(255, 255, 255, 0.15);
+  --blur: blur(25px);
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
 
 body.light-theme {
   --primary: #1a73e8;
-  --accent: linear-gradient(90deg, #1a73e8, #7b61ff);
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --border-light: rgba(0, 0, 0, 0.15);
-  --text: #2a2a2a;
-  --shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  --blur: blur(15px);
+  --text: #1c1c1c;
+  --background: linear-gradient(145deg, #eaf2ff, #ffffff);
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --border: rgba(0, 0, 0, 0.1);
+  --shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* ======== GERAL ======== */
+/* Base */
 body {
   font-family: "Poppins", sans-serif;
-  background: radial-gradient(ellipse at top, #0d0e11, #0a0a0d);
   color: var(--text);
+  background: var(--background);
+  transition: background 0.5s ease, color 0.3s ease;
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: background 0.5s ease;
 }
 
-body.light-theme {
-  background: linear-gradient(135deg, #eaf3ff, #ffffff);
-}
-
-h1, h2, h3 {
-  color: var(--primary);
-}
-
-/* ======== CONTAINERS ======== */
-.dashboard-container,
-.container {
+/* Container principal */
+.dashboard-container, .container {
   background: var(--glass-bg);
   backdrop-filter: var(--blur);
-  border: 1px solid var(--border-light);
-  border-radius: 18px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
   box-shadow: var(--shadow);
   padding: 30px;
-  margin-top: 30px;
-  width: 90%;
   max-width: 1200px;
+  margin: 40px auto;
   transition: all 0.3s ease;
 }
 
-/* ======== BOTÕES ======== */
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 15px;
+}
+
+.header h1 {
+  font-size: 2.2em;
+  color: var(--primary);
+  text-shadow: 0 0 10px rgba(33, 201, 133, 0.3);
+}
+
+/* Botões */
 .button {
-  background: var(--accent);
-  color: #fff;
+  background: linear-gradient(90deg, #21c985, #00c3ff);
   border: none;
+  color: white;
   border-radius: 10px;
-  padding: 12px 22px;
-  cursor: pointer;
+  padding: 12px 24px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  cursor: pointer;
   transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(33, 201, 133, 0.3);
 }
 
 .button:hover {
@@ -79,108 +79,123 @@ h1, h2, h3 {
 }
 
 .button-secondary {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid var(--border-light);
+  background: transparent;
+  border: 1px solid var(--border);
   color: var(--text);
 }
 
+/* Botão tema */
 .theme-toggle-button {
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  font-size: 1.2em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: linear-gradient(135deg, #21c985, #00c3ff);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(33, 201, 133, 0.4);
   transition: transform 0.3s ease;
 }
 .theme-toggle-button:hover {
   transform: rotate(25deg) scale(1.1);
 }
 
-/* ======== CARDS ======== */
+/* Lista de Devedores */
+.debtors-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
 .debtor-item {
   background: var(--glass-bg);
   backdrop-filter: var(--blur);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 20px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: var(--shadow);
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.debtor-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(130deg, #21c985, #00c3ff, #21c985);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.debtor-item:hover::before {
+  opacity: 0.25;
 }
 
 .debtor-item:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-  border-image: var(--accent) 1;
-  border-width: 1.5px;
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(33, 201, 133, 0.4);
+  box-shadow: 0 12px 35px rgba(33, 201, 133, 0.3);
 }
 
-/* ======== INPUTS ======== */
-input, select {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-  padding: 12px;
+.debtor-info h2 {
+  margin-top: 0;
+  color: var(--primary);
+  font-size: 1.5em;
+}
+
+.debtor-info p {
+  margin: 6px 0;
+  font-size: 0.95em;
   color: var(--text);
-  width: 100%;
-  font-size: 1em;
-  transition: all 0.3s;
+  opacity: 0.9;
 }
 
-input:focus, select:focus {
-  border-color: var(--primary);
-  outline: none;
-  box-shadow: 0 0 8px var(--primary);
-}
-
-/* ======== MODAL ======== */
+/* Modal */
 .modal-content {
   background: var(--glass-bg);
   backdrop-filter: var(--blur);
-  border: 1px solid var(--border-light);
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 30px;
+  border: 1px solid var(--border);
   box-shadow: var(--shadow);
-  animation: popupIn 0.4s ease;
+  animation: fadeIn 0.4s ease;
 }
 
-@keyframes popupIn {
-  from { opacity: 0; transform: scale(0.9);}
-  to { opacity: 1; transform: scale(1);}
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-/* ======== PAGAMENTOS ======== */
-.payment-square {
-  border: 1px solid var(--border-light);
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-  border-radius: 10px;
+/* Inputs */
+input, select {
+  width: 100%;
   padding: 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: all 0.3s ease;
+}
+input:focus, select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 6px rgba(33, 201, 133, 0.6);
+  outline: none;
+}
+
+/* Pagamentos */
+.payment-square {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
   text-align: center;
   color: var(--text);
-  transition: 0.3s;
+  padding: 10px;
+  transition: all 0.3s ease;
 }
-
 .payment-square.paid {
   background: linear-gradient(135deg, #00e676, #1de9b6);
   color: #fff;
-  box-shadow: 0 0 12px rgba(0,230,118,0.6);
-}
-
-/* ======== ANIMAÇÃO DE APARECIMENTO ======== */
-.debtor-item, .payment-square {
-  animation: fadeUp 0.6s ease both;
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ======== RESPONSIVO ======== */
-@media (max-width: 768px) {
-  .dashboard-container { padding: 20px; }
-  .button { width: 100%; }
+  box-shadow: 0 0 12px rgba(0,230,118,0.5);
 }
