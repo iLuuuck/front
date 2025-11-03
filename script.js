@@ -954,4 +954,5 @@ if (window.location.pathname.endsWith('dashboard.html')) {
     }
 
 } // FIM do if (window.location.pathname.endsWith('dashboard.html')) { ... }
-} // FIM do document.addEventListener('DOMContentLoaded', ...)
+ // FIM do document.addEventListener('DOMContentLoaded', ...)
+
