@@ -6,8 +6,6 @@
     <title>Gerenciador de Empréstimos - Dashboard</title>
     <link rel="stylesheet" href="style.css">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -17,20 +15,17 @@
         <header class="header">
             <img src="logo.png" alt="Logo do Gerenciador de Empréstimos" class="app-logo"> 
             <h1>Meus Devedores</h1>
-            <div class="header-actions">
-                <button id="addDebtorButton" class="button">Adicionar Novo Devedor</button>
-                
-                <div class="settings-container">
-                    <button id="settingsButton" class="icon-button" aria-label="Configurações">
-                        <i class="fas fa-cog"></i>
-                    </button>
-
-                    <div id="settingsMenu" class="settings-menu hidden">
-                        <button id="themeToggleButton" class="menu-item">Mudar Tema</button>
-                        <button id="logoutMenuItem" class="menu-item">Sair (Deslogar)</button>
-                    </div>
-                </div>
-            </div>
+<div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+    <button id="addDebtorButton" class="button">+ Adicionar Devedor</button>
+    
+    <div class="menu-container">
+        <button class="menu-toggle" id="menuToggleButton">⋮</button>
+        <div class="menu-dropdown" id="menuDropdown">
+            <button id="themeToggleButton" class="menu-item">Mudar Tema</button>
+            <button id="logoutButton" class="menu-item">Sair</button>
+        </div>
+    </div>
+</div>
         </header>
 
         <p id="errorMessage" class="error-message" style="display: none;"></p>
@@ -66,72 +61,74 @@
                     <input type="text" id="debtorDescription">
                 </div>
                 <div class="input-group">
-                    <label for="loanedAmount">Valor Emprestado (R$):</label>
+                    <label for="loanedAmount">Valor Emprestado:</label>
                     <input type="number" id="loanedAmount" step="0.01" required>
-                </div>
-                <div class="input-group">
-                    <label for="startDate">Data de Início:</label>
-                    <input type="date" id="startDate" required>
-                </div>
-                
-                <div class="input-group">
-                    <label for="installments">Número de Parcelas:</label>
-                    <input type="number" id="installments" min="1" value="1" required>
                 </div>
 
                 <div class="input-group">
-                    <label for="frequency">Frequência de Pagamento:</label>
+                    <label for="frequency">Frequência de Recebimento:</label>
                     <select id="frequency" required>
                         <option value="daily">Diário</option>
                         <option value="weekly">Semanal</option>
                         <option value="monthly">Mensal</option>
                     </select>
                 </div>
-                
+
                 <div class="input-group">
-                    <label for="calculationType">Calcular Juros por:</label>
+                    <label for="calculationType">Tipo de Cálculo:</label>
                     <select id="calculationType">
                         <option value="perInstallment">Valor por Parcela</option>
-                        <option value="percentage">Porcentagem (%)</option>
+                        <option value="percentage">Porcentagem de Juros</option>
                     </select>
                 </div>
 
                 <div id="perInstallmentFields">
                     <div class="input-group">
-                        <label for="amountPerInstallmentInput">Valor por Parcela (R$):</label>
+                        <label for="amountPerInstallmentInput">Valor por Parcela:</label>
                         <input type="number" id="amountPerInstallmentInput" step="0.01">
                     </div>
                 </div>
 
+                <div class="input-group">
+                    <label for="installments">Número de Parcelas:</label>
+                    <input type="number" id="installments" required>
+                </div>
+
                 <div id="percentageFields" style="display: none;">
                     <div class="input-group">
-                        <label for="interestPercentageInput">Juros (%):</label>
-                        <input type="number" id="interestPercentageInput" step="0.01" min="0">
+                        <label for="interestPercentageInput">Porcentagem de Juros (%):</label>
+                        <input type="number" id="interestPercentageInput" step="0.01">
                     </div>
                 </div>
 
-                <button type="submit" id="saveDebtorButton" class="button">Salvar Devedor</button>
+                <div class="input-group">
+                    <label for="startDate">Data de Início:</label>
+                    <input type="date" id="startDate" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="saveDebtorButton" class="button">Salvar</button>
+                </div>
             </form>
         </div>
     </div>
 </div>
 
-
+    
 <div id="debtorDetailModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 id="detailDebtorName">Nome do Devedor</h2>
+            <h2 id="detailDebtorName"></h2>
             <span class="close-button">&times;</span>
         </div>
         <div class="modal-body">
             <div class="debtor-details-grid">
                 <p><strong>Descrição:</strong> <span id="detailDebtorDescription"></span></p>
-                <p><strong>Emprestado:</strong> <span id="detailLoanedAmount"></span></p>
+                <p><strong>Valor Emprestado:</strong> <span id="detailLoanedAmount"></span></p>
                 <p><strong>Total a Receber:</strong> <span id="detailTotalToReceive"></span></p>
-                <p><strong>Juros:</strong> <span id="detailInterestPercentage"></span></p>
+                <p><strong>% Juros:</strong> <span id="detailInterestPercentage"></span></p>
                 <p><strong>Parcelas:</strong> <span id="detailInstallments"></span></p>
-                <p><strong>Valor/Parcela:</strong> <span id="detailAmountPerInstallment"></span></p>
-                <p><strong>Data de Início:</strong> <span id="detailStartDate"></span></p>
+                <p><strong>Valor por Parcela:</strong> <span id="detailAmountPerInstallment"></span></p>
+                <p><strong>Data Início:</strong> <span id="detailStartDate"></span></p>
                 <p><strong>Frequência:</strong> <span id="detailFrequency"></span></p>
                 <div class="toggle-switch">
                     <label for="toggleTotalToReceive">Esconder Total a Receber:</label>
