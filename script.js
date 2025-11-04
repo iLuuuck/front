@@ -195,6 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         function showError(message) {
+            if(!errorMessageDiv) return;
             errorMessageDiv.textContent = message;
             errorMessageDiv.style.display = 'block';
             setTimeout(() => {
@@ -204,12 +205,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // --- Lógica de View Mode (Lista vs. Card) (NOVO) ---
         function applyViewMode(mode) {
-            if (!debtorsList) return; // Checagem de segurança para garantir que a lista existe
+            if (!debtorsList) return; 
 
             debtorsList.classList.remove('list-view', 'card-view');
             debtorsList.classList.add(mode + '-view');
             
-            // Alterna o estilo dos botões 
             if (viewModeListButton && viewModeCardButton) {
                 viewModeListButton.classList.toggle('button-secondary', mode !== 'list');
                 viewModeCardButton.classList.toggle('button-secondary', mode !== 'card');
@@ -224,11 +224,9 @@ document.addEventListener('DOMContentLoaded', () => {
         function renderDebtors() {
             if (!debtorsList) return; 
             
-            // Aplica o modo de visualização 
             applyViewMode(currentViewMode);
 
             let filteredDebtors = debtors;
-            // Filtro por frequência de pagamento
             if (currentFilter !== 'all') {
                 filteredDebtors = debtors.filter(d => d.frequency === currentFilter);
             }
@@ -244,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const debtorPayments = Array.isArray(debtor.payments) ? debtor.payments : [];
                 const totalPaid = debtorPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
                 const remainingAmount = debtor.totalToReceive - totalPaid;
-                const progress = Math.min(100, (totalPaid / debtor.totalToReceive) * 100); // Limita a 100%
+                const progress = Math.min(100, (totalPaid / debtor.totalToReceive) * 100); 
                 const status = remainingAmount <= 0.01 ? 'Quitado' : 'Ativo';
 
 
@@ -266,21 +264,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="debtor-status-bar" style="--progress: ${progress}%;">
                     </div>
                     <div class="debtor-actions">
-                        <button class="button button-small" onclick="window.openDebtorDetailModal('${debtor.id}')">Ver Detalhes</button>
+                        <button class="button button-small view-details-btn">Ver Detalhes</button>
                         <button class="button button-secondary button-small edit-debtor-btn">Editar</button>
                         <button class="button button-danger button-small delete-debtor-btn">Excluir</button>
                     </div>
                 `;
 
-                // Garante que a função de detalhe possa ser chamada globalmente (necessário por estar no onclick do HTML injetado)
-                window.openDebtorDetailModal = openDebtorDetailModal;
-
+                // CORRIGIDO: Novo Listener para o botão "Ver Detalhes"
+                debtorItem.querySelector('.view-details-btn').addEventListener('click', (event) => {
+                    event.stopPropagation(); // Evita que o clique do botão abra o modal duas vezes
+                    openDebtorDetailModal(debtor.id);
+                });
+                
+                // Listener para o clique na área de info (se não for nas ações)
                 debtorItem.querySelector('.debtor-info').addEventListener('click', (event) => {
                     if (!event.target.closest('.debtor-actions')) {
                          openDebtorDetailModal(debtor.id);
                     }
                 });
 
+                // Listener para o botão "Editar" (MANTIDO E CONFIRMADO)
                 debtorItem.querySelector('.edit-debtor-btn').addEventListener('click', (event) => {
                     event.stopPropagation();
                     openAddEditDebtorModal(debtor.id);
@@ -416,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         await db.collection('debtors').add(newDebtorData);
                     }
-                    addEditDebtorModal.style.display = 'none';
+                    if(addEditDebtorModal) addEditDebtorModal.style.display = 'none';
                 } catch (error) {
                     console.error("Erro ao salvar devedor:", error);
                     showError('Erro ao salvar devedor. Verifique o console para mais detalhes.');
@@ -426,7 +429,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         function openAddEditDebtorModal(id = null) {
-            // Linha 445: O erro ocorria aqui se 'addEditDebtorForm' fosse null.
             if (addEditDebtorForm) {
                  addEditDebtorForm.reset(); 
             } else {
@@ -436,13 +438,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             currentDebtorId = id;
 
-            // Resetar para o tipo de cálculo padrão ao abrir o modal
             if (calculationTypeSelect) {
                 calculationTypeSelect.value = 'perInstallment';
-                perInstallmentFields.style.display = 'block';
-                amountPerInstallmentInput.setAttribute('required', 'required');
-                percentageFields.style.display = 'none';
-                interestPercentageInput.removeAttribute('required');
+                if(perInstallmentFields) perInstallmentFields.style.display = 'block';
+                if(amountPerInstallmentInput) amountPerInstallmentInput.setAttribute('required', 'required');
+                if(percentageFields) percentageFields.style.display = 'none';
+                if(interestPercentageInput) interestPercentageInput.removeAttribute('required');
             }
             if(installmentsInput) installmentsInput.setAttribute('required', 'required'); 
 
@@ -462,29 +463,29 @@ document.addEventListener('DOMContentLoaded', () => {
                         const calculatedInterestFromInstallment = ((debtor.totalToReceive - debtor.loanedAmount) / debtor.loanedAmount * 100);
                         if (Math.abs(calculatedInterestFromInstallment - debtor.interestPercentage) < 0.01 || debtor.interestPercentage === 0) {
                             if(calculationTypeSelect) calculationTypeSelect.value = 'perInstallment';
-                            amountPerInstallmentInput.value = debtor.amountPerInstallment;
+                            if(amountPerInstallmentInput) amountPerInstallmentInput.value = debtor.amountPerInstallment;
                             if(perInstallmentFields) perInstallmentFields.style.display = 'block';
                             if(percentageFields) percentageFields.style.display = 'none';
                         } else {
                             if(calculationTypeSelect) calculationTypeSelect.value = 'percentage';
-                            interestPercentageInput.value = debtor.interestPercentage;
+                            if(interestPercentageInput) interestPercentageInput.value = debtor.interestPercentage;
                             if(perInstallmentFields) perInstallmentFields.style.display = 'none';
                             if(percentageFields) percentageFields.style.display = 'block';
                         }
                     } else if (debtor.interestPercentage) {
                         if(calculationTypeSelect) calculationTypeSelect.value = 'percentage';
-                        interestPercentageInput.value = debtor.interestPercentage;
+                        if(interestPercentageInput) interestPercentageInput.value = debtor.interestPercentage;
                         if(perInstallmentFields) perInstallmentFields.style.display = 'none';
                         if(percentageFields) percentageFields.style.display = 'block';
                     }
-                     // Garante que o estado correto de 'required' seja aplicado após a definição do valor
+                    
                     if (calculationTypeSelect) {
                         if (calculationTypeSelect.value === 'perInstallment') {
-                             amountPerInstallmentInput.setAttribute('required', 'required');
-                             interestPercentageInput.removeAttribute('required');
+                             if(amountPerInstallmentInput) amountPerInstallmentInput.setAttribute('required', 'required');
+                             if(interestPercentageInput) interestPercentageInput.removeAttribute('required');
                         } else {
-                             amountPerInstallmentInput.removeAttribute('required');
-                             interestPercentageInput.setAttribute('required', 'required');
+                             if(amountPerInstallmentInput) amountPerInstallmentInput.removeAttribute('required');
+                             if(interestPercentageInput) interestPercentageInput.setAttribute('required', 'required');
                         }
                     }
                 }
@@ -509,15 +510,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const debtor = debtors.find(d => d.id === id);
 
             if (debtor) {
-                detailDebtorName.textContent = debtor.name;
-                detailDebtorDescription.textContent = debtor.description;
-                detailLoanedAmount.textContent = formatCurrency(debtor.loanedAmount);
-                detailTotalToReceive.textContent = formatCurrency(debtor.totalToReceive);
-                detailInterestPercentage.textContent = `${debtor.interestPercentage || 0}%`; 
-                detailInstallments.textContent = debtor.installments;
-                detailAmountPerInstallment.textContent = formatCurrency(debtor.amountPerInstallment);
-                detailStartDate.textContent = formatDate(debtor.startDate);
-                detailFrequency.textContent = debtor.frequency === 'daily' ? 'Diário' : debtor.frequency === 'weekly' ? 'Semanal' : 'Mensal';
+                if(detailDebtorName) detailDebtorName.textContent = debtor.name;
+                if(detailDebtorDescription) detailDebtorDescription.textContent = debtor.description;
+                if(detailLoanedAmount) detailLoanedAmount.textContent = formatCurrency(debtor.loanedAmount);
+                if(detailTotalToReceive) detailTotalToReceive.textContent = formatCurrency(debtor.totalToReceive);
+                if(detailInterestPercentage) detailInterestPercentage.textContent = `${debtor.interestPercentage || 0}%`; 
+                if(detailInstallments) detailInstallments.textContent = debtor.installments;
+                if(detailAmountPerInstallment) detailAmountPerInstallment.textContent = formatCurrency(debtor.amountPerInstallment);
+                if(detailStartDate) detailStartDate.textContent = formatDate(debtor.startDate);
+                if(detailFrequency) detailFrequency.textContent = debtor.frequency === 'daily' ? 'Diário' : debtor.frequency === 'weekly' ? 'Semanal' : 'Mensal';
 
                 const hideTotalToReceivePref = localStorage.getItem('hideTotalToReceive');
                 if (hideTotalToReceivePref === 'true') {
@@ -545,11 +546,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // --- RENDERIZAÇÃO E LÓGICA DOS QUADRADINHOS DE PAGAMENTO (Mantida) ---
+        // --- RENDERIZAÇÃO E LÓGICA DOS QUADRADINHOS DE PAGAMENTO ---
         function renderPaymentsGrid(debtor) {
             if(!paymentsGrid) return;
-            // [Lógica da função renderPaymentsGrid mantida inalterada]
-            // ... (código para renderizar pagamentos)
             paymentsGrid.innerHTML = '';
             selectedPaymentIndex = null;
 
@@ -577,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
                              paymentDateForThisInstallment = payment.date;
                         }
 
-                        if (paidAmountForThisInstallment >= expectedAmountForThisInstallment - 0.005) { // Tolerância para float
+                        if (paidAmountForThisInstallment >= expectedAmountForThisInstallment - 0.005) { 
                             isPaid = true;
                             break;
                         }
@@ -652,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Lógica para o botão "Exibir Todas as Parcelas" ---
         function showAllInstallments() {
             if (!currentDebtorId) return;
-            // [Lógica da função showAllInstallments mantida inalterada]
+
             const debtor = debtors.find(d => d.id === currentDebtorId);
             if (!debtor) return;
 
@@ -785,7 +784,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         async function removeLastPayment(debtorId) {
-            // [Lógica da função removeLastPayment mantida inalterada]
             try {
                 const debtorRef = db.collection('debtors').doc(debtorId);
                 const doc = await debtorRef.get();
@@ -857,6 +855,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (debtorDetailModal && debtorDetailModal.style.display === 'flex' && currentDebtorId) {
                     const currentDebtorInModal = debtors.find(d => d.id === currentDebtorId);
                     if (currentDebtorInModal) {
+                        // Re-renderiza a grade de pagamentos no modal se ele estiver aberto
                         renderPaymentsGrid(currentDebtorInModal);
                     } else {
                         if(debtorDetailModal) debtorDetailModal.style.display = 'none';
@@ -881,7 +880,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Event listeners para os botões de filtro
-        // Linha 339: O erro ocorria nesta seção, pois os botões podiam não existir.
         if(filterAllButton) {
             filterAllButton.addEventListener('click', () => {
                 currentFilter = 'all';
@@ -938,7 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
 
-        // --- LÓGICA DO VÍNCULO TELEGRAM (Mantida) ---
+        // --- LÓGICA DO VÍNCULO TELEGRAM ---
 
         function generateRandomCode(length) {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -991,7 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } // FIM do if (window.location.pathname.endsWith('dashboard.html')) { ... }
     
-    // Listener de estado de autenticação: Redireciona quando o usuário loga/desloga (Mantido Fora do DOMContentLoaded do dashboard para funcionar imediatamente)
+    // Listener de estado de autenticação: Redireciona quando o usuário loga/desloga 
     auth.onAuthStateChanged((user) => {
         if (user) {
             if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/')) {
