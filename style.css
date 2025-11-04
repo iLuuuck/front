@@ -964,9 +964,18 @@ input:checked + .slider:before {
     color: var(--error-color);
 }
 
-/* --- MENU DE TRÊS PONTOS --- */
+/* --- MENU DE TRÊS PONTOS (ao lado do botão) --- */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+}
+
 .menu-container {
     position: relative;
+    display: flex;
+    align-items: center;
 }
 
 .menu-toggle {
@@ -978,6 +987,7 @@ input:checked + .slider:before {
     padding: 6px 10px;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    height: 100%;
 }
 
 .menu-toggle:hover {
@@ -988,7 +998,7 @@ input:checked + .slider:before {
     display: none;
     position: absolute;
     right: 0;
-    top: 40px;
+    top: calc(100% + 8px);
     background-color: var(--card-background-color);
     border: 1px solid var(--border-color);
     border-radius: 8px;
