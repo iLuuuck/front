@@ -40,7 +40,10 @@ const firebaseConfig = {
     appId: "1:590812147841:web:da98880beb257e0de3dd80"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
 const db = firebase.firestore();
 const auth = firebase.auth(); // Referência ao serviço de autenticação
 
@@ -149,11 +152,16 @@ if (window.location.pathname.endsWith('dashboard.html')) {
     const filterWeeklyButton = document.getElementById('filterWeeklyButton');
     const filterMonthlyButton = document.getElementById('filterMonthlyButton');
 
+    // NOVO: Elementos de Toggle de Visualização
+    const viewModeListButton = document.getElementById('viewModeListButton');
+    const viewModeCardButton = document.getElementById('viewModeCardButton');
+
     let debtors = [];
     let currentDebtorId = null;
     let selectedPaymentIndex = null;
     let currentUserId = null; // Para armazenar o ID do usuário logado
     let currentFilter = 'all'; // Variável para controlar o filtro atual
+    let currentViewMode = localStorage.getItem('debtorsViewMode') || 'card'; // 'list' ou 'card' (NOVO)
 
     // --- Funções Auxiliares ---
 
@@ -207,6 +215,24 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         }, 5000);
     }
 
+    // --- Lógica de View Mode (Lista vs. Card) (NOVO) ---
+    function applyViewMode(mode) {
+        // Remove ambas as classes para evitar conflito e aplica a nova
+        debtorsList.classList.remove('list-view', 'card-view');
+        // Adiciona a classe correspondente ao novo modo
+        debtorsList.classList.add(mode + '-view');
+        
+        // Alterna o estilo dos botões (o botão ativo NÃO deve ter 'button-secondary')
+        if (viewModeListButton && viewModeCardButton) {
+            viewModeListButton.classList.toggle('button-secondary', mode !== 'list');
+            viewModeCardButton.classList.toggle('button-secondary', mode !== 'card');
+        }
+        
+        // Salva a preferência
+        currentViewMode = mode;
+        localStorage.setItem('debtorsViewMode', mode);
+    }
+
     // --- Logout ---
     if (logoutButton) {
         logoutButton.addEventListener('click', async () => {
@@ -223,6 +249,10 @@ if (window.location.pathname.endsWith('dashboard.html')) {
     // --- Renderização de Devedores na Lista Principal ---
     function renderDebtors() {
         debtorsList.innerHTML = '';
+        
+        // Aplica o modo de visualização (card-view ou list-view) ANTES de renderizar
+        applyViewMode(currentViewMode);
+
         if (debtors.length === 0) {
             debtorsList.innerHTML = '<p class="loading-message">Nenhum devedor cadastrado. Clique em "Adicionar Novo Devedor" para começar.</p>';
             return;
@@ -232,24 +262,36 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             const debtorPayments = Array.isArray(debtor.payments) ? debtor.payments : [];
             const totalPaid = debtorPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
             const remainingAmount = debtor.totalToReceive - totalPaid;
+            const progress = (totalPaid / debtor.totalToReceive) * 100;
+            const status = remainingAmount <= 0.01 ? 'Quitado' : 'Ativo';
+
 
             const debtorItem = document.createElement('div');
             debtorItem.className = 'debtor-item';
             debtorItem.setAttribute('data-id', debtor.id);
+            debtorItem.setAttribute('data-frequency', debtor.frequency); // Adiciona frequência para filtros visuais
 
             debtorItem.innerHTML = `
                 <div class="debtor-info">
                     <h2>${debtor.name}</h2>
                     <p>${debtor.description || 'Sem descrição'}</p>
-                    <p>Emprestado: ${formatCurrency(debtor.loanedAmount)}</p>
                     <p>Total a Receber: ${formatCurrency(debtor.totalToReceive)}</p>
                     <p>Restante: <span style="color: ${remainingAmount > 0 ? 'var(--error-color)' : 'var(--success-color)'}">${formatCurrency(remainingAmount)}</span></p>
                 </div>
+                <div class="debtor-status-text">
+                    ${status} (${progress.toFixed(0)}% Pago)
+                </div>
+                <div class="debtor-status-bar" style="--progress: ${progress}%;">
+                </div>
                 <div class="debtor-actions">
-                    <button class="edit-debtor-btn small-button">Editar</button>
-                    <button class="delete-debtor-btn small-button">Excluir</button>
+                    <button class="button button-small" onclick="window.openDebtorDetailModal('${debtor.id}')">Ver Detalhes</button>
+                    <button class="button button-secondary button-small edit-debtor-btn">Editar</button>
+                    <button class="button button-danger button-small delete-debtor-btn">Excluir</button>
                 </div>
             `;
+
+            // Garante que a função de detalhe possa ser chamada globalmente (necessário por estar no onclick do HTML injetado)
+            window.openDebtorDetailModal = openDebtorDetailModal;
 
             debtorItem.querySelector('.debtor-info').addEventListener('click', (event) => {
                 if (!event.target.closest('.debtor-actions')) {
@@ -887,6 +929,8 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             currentUserId = user.uid; // Armazena o ID do usuário logado
             console.log("Usuário logado:", user.email, "UID:", user.uid);
             setupFirestoreListener(); // Inicia o listener do Firestore
+            updateFilterButtons('filterAllButton'); // Inicializa o botão de filtro "Todos" como ativo
+            applyViewMode(currentViewMode); // Aplica o modo de visualização salvo ao carregar
         } else {
             currentUserId = null; // Nenhum usuário logado
             debtors = []; // Limpa a lista de devedores
@@ -894,6 +938,16 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             console.log("Nenhum usuário logado.");
         }
     });
+
+    // Toggle de Visualização (NOVO)
+    if (viewModeListButton) {
+        viewModeListButton.addEventListener('click', () => applyViewMode('list'));
+    }
+
+    if (viewModeCardButton) {
+        viewModeCardButton.addEventListener('click', () => applyViewMode('card'));
+    }
+    
 
     // --- LÓGICA DO VÍNCULO TELEGRAM (NOVO) ---
 
@@ -954,6 +1008,3 @@ if (window.location.pathname.endsWith('dashboard.html')) {
     }
 
 } // FIM do if (window.location.pathname.endsWith('dashboard.html')) { ... }
- // FIM do document.addEventListener('DOMContentLoaded', ...)
-
-
