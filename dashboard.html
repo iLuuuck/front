@@ -15,21 +15,23 @@
         <header class="header">
             <img src="logo.png" alt="Logo do Gerenciador de Empréstimos" class="app-logo"> 
             <h1>Meus Devedores</h1>
-            <div class="header-actions" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end;">
-                <button id="addDebtorButton" class="button">Adicionar Novo Devedor</button>
-                
-                <div id="telegramLinkSection" style="display: flex; gap: 10px; align-items: center; border: 1px solid var(--border-color); padding: 5px; border-radius: 5px;">
-                    <span id="linkCodeDisplay" style="font-weight: bold; font-size: 1.1em; min-width: 60px; text-align: center;"></span>
-                    <button id="generateLinkCodeButton" class="button button-secondary">Gerar Código Telegram</button>
-                </div>
-                <div style="display: flex; gap: 10px;">
+            <div class="header-actions">
+                                <div class="header-utility-actions">
                     <button id="themeToggleButton" class="theme-toggle-button" aria-label="Tema"></button>
-                    <button id="logoutButton" class="button">Sair</button>
+                    <button id="logoutButton" class="button button-small">Sair</button>
+                </div>
+                
+                                <div class="header-main-actions">
+                    <button id="addDebtorButton" class="button">Adicionar Novo Devedor</button>
+                    <div id="telegramLinkSection" class="telegram-link-section">
+                        <span id="linkCodeDisplay"></span>
+                        <button id="generateLinkCodeButton" class="button button-secondary button-small">Gerar Código</button>
+                    </div>
                 </div>
             </div>
         </header>
 
-        <div id="dashboardStats" class="dashboard-stats-panel">
+        <div id="dashboardStats" class="stats-grid">
             <div class="stat-card">
                 <h3>VALOR TOTAL EMPRESTADO</h3>
                 <p id="totalLoanedAmount">R$ 0,00</p>
@@ -43,7 +45,8 @@
                 <p id="clientCount">0</p>
             </div>
         </div>
-                <p id="errorMessage" class="error-message" style="display: none;"></p>
+        
+        <p id="errorMessage" class="error-message" style="display: none;"></p>
 
         <div class="dashboard-content">
             <div class="filter-actions">
@@ -51,143 +54,111 @@
                 <button id="filterDailyButton" class="button button-secondary">Diários</button>
                 <button id="filterWeeklyButton" class="button button-secondary">Semanais</button>
                 <button id="filterMonthlyButton" class="button button-secondary">Mensais</button>
+                
+                                <div class="view-toggle-group">
+                    <button id="viewModeListButton" class="button button-secondary button-small" aria-label="Modo Lista"><span class="list-icon"></span></button>
+                    <button id="viewModeCardButton" class="button button-small" aria-label="Modo Cartão"><span class="card-icon"></span></button>
+                </div>
             </div>
-            <div id="debtorsList" class="debtors-list">
+            
+                        <div id="debtorsList" class="debtors-list">
                 <p class="loading-message">Carregando devedores...</p>
             </div>
         </div>
     </div>
 
     
-<div id="addEditDebtorModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="addEditModalTitle">Adicionar Novo Devedor</h2>
-            <span class="close-button">&times;</span>
-        </div>
-        <div class="modal-body">
-            <form id="addEditDebtorForm">
-                <div class="input-group">
-                    <label for="debtorName">Nome:</label>
-                    <input type="text" id="debtorName" required>
-                </div>
-                <div class="input-group">
-                    <label for="debtorDescription">Descrição:</label>
-                    <input type="text" id="debtorDescription">
-                </div>
-                <div class="input-group">
-                    <label for="loanedAmount">Valor Emprestado:</label>
-                    <input type="number" id="loanedAmount" step="0.01" required>
-                </div>
-
-                <div class="input-group">
-                    <label for="frequency">Frequência de Recebimento:</label>
-                    <select id="frequency" required>
-                        <option value="daily">Diário</option>
-                        <option value="weekly">Semanal</option>
-                        <option value="monthly">Mensal</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label for="calculationType">Tipo de Cálculo:</label>
-                    <select id="calculationType">
-                        <option value="perInstallment">Valor por Parcela</option>
-                        <option value="percentage">Porcentagem de Juros</option>
-                    </select>
-                </div>
-
-                <div id="perInstallmentFields">
-                    <div class="input-group">
-                        <label for="amountPerInstallmentInput">Valor por Parcela:</label>
-                        <input type="number" id="amountPerInstallmentInput" step="0.01">
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="installments">Número de Parcelas:</label>
-                    <input type="number" id="installments" required>
-                </div>
-
-                <div id="percentageFields" style="display: none;">
-                    <div class="input-group">
-                        <label for="interestPercentageInput">Porcentagem de Juros (%):</label>
-                        <input type="number" id="interestPercentageInput" step="0.01">
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="startDate">Data de Início:</label>
-                    <input type="date" id="startDate" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" id="saveDebtorButton" class="button">Salvar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-    
-<div id="debtorDetailModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="detailDebtorName"></h2>
-            <span class="close-button">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div class="debtor-details-grid">
-                <p><strong>Descrição:</strong> <span id="detailDebtorDescription"></span></p>
-                <p><strong>Valor Emprestado:</strong> <span id="detailLoanedAmount"></span></p>
-                <p><strong>Total a Receber:</strong> <span id="detailTotalToReceive"></span></p>
-                <p><strong>% Juros:</strong> <span id="detailInterestPercentage"></span></p>
-                <p><strong>Parcelas:</strong> <span id="detailInstallments"></span></p>
-                <p><strong>Valor por Parcela:</strong> <span id="detailAmountPerInstallment"></span></p>
-                <p><strong>Data Início:</strong> <span id="detailStartDate"></span></p>
-                <p><strong>Frequência:</strong> <span id="detailFrequency"></span></p>
-                <div class="toggle-switch">
-                    <label for="toggleTotalToReceive">Esconder Total a Receber:</label>
-                    <label class="switch">
-                        <input type="checkbox" id="toggleTotalToReceive">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="payment-header">
-                <h3>Pagamentos</h3>
-                <button id="showAllInstallmentsButton" class="button button-secondary">Exibir Todas as Parcelas</button>
-            </div>
-            <div id="paymentsGrid" class="payments-grid"></div>
-
-            <div class="payment-actions">
-                <div class="input-group">
-                    <label for="paymentAmount">Valor do Pagamento:</label>
-                    <input type="number" id="paymentAmount" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="paymentDate">Data do Pagamento:</label>
-                    <input type="date" id="paymentDate">
-                </div>
-                <button id="fillAmountButton" class="button button-secondary">Preencher Valor</button>
-                <button id="addPaymentButton" class="button">Adicionar Pagamento</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="allInstallmentsModal" class="modal">
-    <div class="fullscreen-modal-content">
-        <div class="fullscreen-modal-header">
-            <h2 id="allInstallmentsTitle">Todas as Parcelas</h2>
-            <span class="close-button" id="closeAllInstallmentsModal">&times;</span>
+    <div id="addEditDebtorModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="modalTitle">Adicionar Novo Devedor</h2>
+            <form id="debtorForm">
+                <div class="input-group">
+                    <label for="debtorName">Nome do Cliente:</label>
+                    <input type="text" id="debtorName" required>
+                </div>
+                <div class="input-group">
+                    <label for="debtorPhone">Telefone:</label>
+                    <input type="tel" id="debtorPhone" placeholder="(XX) XXXXX-XXXX">
+                </div>
+                <div class="input-group">
+                    <label for="loanAmount">Valor Emprestado (R$):</label>
+                    <input type="number" id="loanAmount" step="0.01" required>
+                </div>
+                <div class="input-group">
+                    <label for="interestRate">Taxa de Juros (% a.m.):</label>
+                    <input type="number" id="interestRate" step="0.01" value="10" required>
+                </div>
+                <div class="input-group">
+                    <label for="installments">Número de Parcelas:</label>
+                    <input type="number" id="installments" required>
+                </div>
+                <div class="input-group">
+                    <label for="loanDate">Data do Empréstimo:</label>
+                    <input type="date" id="loanDate" required>
+                </div>
+                <div class="input-group">
+                    <label for="paymentFrequency">Frequência de Pagamento:</label>
+                    <select id="paymentFrequency" required>
+                        <option value="daily">Diário</option>
+                        <option value="weekly">Semanal</option>
+                        <option value="monthly">Mensal</option>
+                    </select>
+                </div>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="loanPaidOff">
+                    <label for="loanPaidOff">Empréstimo Quitado</label>
+                </div>
+                <button type="submit" id="saveDebtorButton" class="button">Salvar Devedor</button>
+            </form>
         </div>
-        <div id="allInstallmentsGrid" class="all-installments-grid">
-            </div>
     </div>
-</div>
 
-<script src="script.js"></script>
+    <div id="debtorDetailsModal" class="modal fullscreen-modal">
+        <div class="modal-content">
+            <div class="fullscreen-modal-header">
+                <h2 id="debtorDetailName"></h2>
+                <span class="close-button close-details-button">&times;</span>
+            </div>
+            
+            <div class="debtor-details-info">
+                <p><strong>Telefone:</strong> <span id="debtorDetailPhone"></span></p>
+                <p><strong>Valor Emprestado:</strong> <span id="debtorDetailLoanAmount"></span></p>
+                <p><strong>Taxa de Juros:</strong> <span id="debtorDetailInterestRate"></span></p>
+                <p><strong>Nº Parcelas:</strong> <span id="debtorDetailInstallments"></span></p>
+                <p><strong>Data do Empréstimo:</strong> <span id="debtorDetailLoanDate"></span></p>
+                <p><strong>Frequência:</strong> <span id="debtorDetailFrequency"></span></p>
+                <p><strong>Valor Total a Pagar:</strong> <span id="debtorDetailTotalAmount"></span></p>
+                <p><strong>Próximo Pagamento:</strong> <span id="debtorDetailNextPayment"></span></p>
+                <p><strong>Status:</strong> <span id="debtorDetailStatus"></span></p>
+            </div>
 
+            <div class="payment-header">
+                <h3>Pagamentos</h3>
+                <button id="showAllInstallmentsButton" class="button button-secondary">Exibir Todas as Parcelas</button>
+            </div>
+            <div id="paymentsGrid" class="payments-grid"></div>
+
+            <div class="payment-actions">
+                <div class="input-group">
+                    <label for="paymentAmount">Valor do Pagamento:</label>
+                    <input type="number" id="paymentAmount" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="paymentDate">Data do Pagamento:</label>
+                    <input type="date" id="paymentDate">
+                </div>
+                <button id="recordPaymentButton" class="button">Registrar Pagamento</button>
+                <p id="paymentError" class="error-message" style="display: none;"></p>
+            </div>
+
+            <div class="modal-footer-actions">
+                <button id="editDebtorDetailsButton" class="button button-secondary">Editar Devedor</button>
+                <button id="deleteDebtorButton" class="button button-danger">Excluir Devedor</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
