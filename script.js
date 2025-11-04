@@ -149,6 +149,20 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentUserId = null; 
         let currentFilter = 'all'; 
         let currentViewMode = localStorage.getItem('debtorsViewMode') || 'card'; 
+        
+        // --- Listener do Botão de Logout (Restaurado) ---
+        if(logoutButton) {
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    // Redirecionamento é feito automaticamente pelo auth.onAuthStateChanged
+                } catch (error) {
+                    console.error("Erro ao fazer logout:", error);
+                    showError('Erro ao fazer logout.');
+                }
+            });
+        }
+
 
         // --- Funções Auxiliares (Simplificadas) ---
 
@@ -158,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function formatDate(dateString) {
             if (!dateString) return '';
-            // Assume format YYYY-MM-DD from input[type="date"]
             const [year, month, day] = dateString.split('-');
             return `${day}/${month}/${year}`;
         }
@@ -203,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 5000);
         }
         
-        // --- Lógica de View Mode (Lista vs. Card) (NOVO) ---
+        // --- Lógica de View Mode (Lista vs. Card) ---
         function applyViewMode(mode) {
             if (!debtorsList) return; 
 
@@ -270,9 +283,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
 
-                // CORRIGIDO: Novo Listener para o botão "Ver Detalhes"
+                // Listener para o botão "Ver Detalhes" (CORRIGIDO)
                 debtorItem.querySelector('.view-details-btn').addEventListener('click', (event) => {
-                    event.stopPropagation(); // Evita que o clique do botão abra o modal duas vezes
+                    event.stopPropagation(); 
                     openDebtorDetailModal(debtor.id);
                 });
                 
@@ -283,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                // Listener para o botão "Editar" (MANTIDO E CONFIRMADO)
+                // Listener para o botão "Editar" (CORRIGIDO)
                 debtorItem.querySelector('.edit-debtor-btn').addEventListener('click', (event) => {
                     event.stopPropagation();
                     openAddEditDebtorModal(debtor.id);
@@ -309,15 +322,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (calculationTypeSelect) {
             calculationTypeSelect.addEventListener('change', () => {
                 if (calculationTypeSelect.value === 'perInstallment') {
-                    perInstallmentFields.style.display = 'block';
-                    amountPerInstallmentInput.setAttribute('required', 'required');
-                    percentageFields.style.display = 'none';
-                    interestPercentageInput.removeAttribute('required');
+                    if(perInstallmentFields) perInstallmentFields.style.display = 'block';
+                    if(amountPerInstallmentInput) amountPerInstallmentInput.setAttribute('required', 'required');
+                    if(percentageFields) percentageFields.style.display = 'none';
+                    if(interestPercentageInput) interestPercentageInput.removeAttribute('required');
                 } else { // percentage
-                    perInstallmentFields.style.display = 'none';
-                    amountPerInstallmentInput.removeAttribute('required');
-                    percentageFields.style.display = 'block';
-                    interestPercentageInput.setAttribute('required', 'required');
+                    if(perInstallmentFields) perInstallmentFields.style.display = 'none';
+                    if(amountPerInstallmentInput) amountPerInstallmentInput.removeAttribute('required');
+                    if(percentageFields) percentageFields.style.display = 'block';
+                    if(interestPercentageInput) interestPercentageInput.setAttribute('required', 'required');
                 }
             });
         }
@@ -448,17 +461,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if(installmentsInput) installmentsInput.setAttribute('required', 'required'); 
 
             if (id) {
-                addEditModalTitle.textContent = 'Editar Devedor';
+                if(addEditModalTitle) addEditModalTitle.textContent = 'Editar Devedor';
                 const debtor = debtors.find(d => d.id === id);
                 if (debtor) {
-                    debtorNameInput.value = debtor.name;
-                    debtorDescriptionInput.value = debtor.description;
-                    loanedAmountInput.value = debtor.loanedAmount;
-                    startDateInput.value = debtor.startDate;
-                    installmentsInput.value = debtor.installments; 
+                    if(debtorNameInput) debtorNameInput.value = debtor.name;
+                    if(debtorDescriptionInput) debtorDescriptionInput.value = debtor.description;
+                    if(loanedAmountInput) loanedAmountInput.value = debtor.loanedAmount;
+                    if(startDateInput) startDateInput.value = debtor.startDate;
+                    if(installmentsInput) installmentsInput.value = debtor.installments; 
                     if (frequencyInput) frequencyInput.value = debtor.frequency; 
 
-                    // Lógica para preencher o tipo de cálculo
                     if (debtor.amountPerInstallment && debtor.totalToReceive && debtor.loanedAmount) {
                         const calculatedInterestFromInstallment = ((debtor.totalToReceive - debtor.loanedAmount) / debtor.loanedAmount * 100);
                         if (Math.abs(calculatedInterestFromInstallment - debtor.interestPercentage) < 0.01 || debtor.interestPercentage === 0) {
@@ -490,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             } else {
-                addEditModalTitle.textContent = 'Adicionar Novo Devedor';
+                if(addEditModalTitle) addEditModalTitle.textContent = 'Adicionar Novo Devedor';
             }
             if(addEditDebtorModal) addEditDebtorModal.style.display = 'flex';
         }
@@ -831,6 +843,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(addEditDebtorModal) addEditDebtorModal.style.display = 'none';
             }
         });
+        
+        // --- EXPOSIÇÃO GLOBAL DE FUNÇÕES (CORREÇÃO CRÍTICA) ---
+        // Isso garante que funções chamadas por 'onclick' no HTML sejam encontradas.
+        window.openAddEditDebtorModal = openAddEditDebtorModal;
+        window.openDebtorDetailModal = openDebtorDetailModal;
+
 
         // --- Listener em Tempo Real do Firestore ---
         function setupFirestoreListener() {
@@ -855,7 +873,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (debtorDetailModal && debtorDetailModal.style.display === 'flex' && currentDebtorId) {
                     const currentDebtorInModal = debtors.find(d => d.id === currentDebtorId);
                     if (currentDebtorInModal) {
-                        // Re-renderiza a grade de pagamentos no modal se ele estiver aberto
                         renderPaymentsGrid(currentDebtorInModal);
                     } else {
                         if(debtorDetailModal) debtorDetailModal.style.display = 'none';
