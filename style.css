@@ -1,743 +1,177 @@
-/* --- Variáveis de Tema (Base para cores e tipografia) --- */
+/* === MANFRED DASHBOARD STYLE - VIDRO + GRADIENTE === */
+
 :root {
-    /* Cores do tema escuro (Dark Mode) - Mais vivas e modernas */
-    --primary-color: #00e676; /* Verde VIBRANTE */
-    --accent-color: #00e676;
-    --accent-color-hover: #00c853; /* Verde um pouco mais escuro */
-    --error-color: #ff5252;
-    --success-color: #4caf50;
-
-    --background-color: #121212; /* Fundo bem escuro */
-    --text-color: #e0e0e0; /* Texto cinza claro */
-    --card-background-color: #1e1e1e; /* Fundo de card mais escuro */
-    --border-color: #424242; /* Borda sutil */
-    --input-background-color: #2c2c2c;
-    --input-text-color: #ffffff; /* Texto do input branco puro */
-    --modal-overlay-color: rgba(0, 0, 0, 0.7);
-    --modal-background-color: #242424;
-    --button-secondary-bg: #424242;
-    --button-secondary-hover-bg: #5a5a5a;
-    --button-primary-text-color: #121212; /* Texto escuro para botões primários */
-
-    /* Variáveis de layout */
-    --padding-main: 20px;
-    --border-radius: 8px;
-    --shadow-subtle: 0 4px 6px rgba(0, 0, 0, 0.2);
+  --primary: #00ffe0;
+  --secondary: #ff00b3;
+  --background: #0a0a0f;
+  --text: #ffffff;
+  --glass: rgba(255, 255, 255, 0.05);
+  --blur: 18px;
+  --radius: 16px;
 }
 
-/* --- Tema Claro (Light Mode) --- */
-.light-theme {
-    --primary-color: #00897b; /* Verde-água mais clássico */
-    --accent-color: #00897b;
-    --accent-color-hover: #00695c;
-    --error-color: #d32f2f;
-    --success-color: #388e3c;
-
-    --background-color: #f5f5f5; /* Fundo bem claro */
-    --text-color: #333333; /* Texto escuro */
-    --card-background-color: #ffffff; /* Fundo de card branco */
-    --border-color: #cccccc;
-    --input-background-color: #ffffff;
-    --input-text-color: #333333;
-    --modal-overlay-color: rgba(0, 0, 0, 0.5);
-    --modal-background-color: #ffffff;
-    --button-secondary-bg: #e0e0e0;
-    --button-secondary-hover-bg: #bdbdbd;
-    --button-primary-text-color: #ffffff; 
-}
-
-/* --- Estilos Globais --- */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
+/* === RESET === */
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: "Poppins", sans-serif; }
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    transition: background-color 0.3s, color 0.3s;
-    line-height: 1.6;
+  background: var(--background);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 20px;
 }
 
-/* --- Botões --- */
-.button {
-    background-color: var(--primary-color);
-    color: var(--button-primary-text-color);
-    border: none;
-    padding: 10px 20px;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase;
-    transition: background-color 0.2s, opacity 0.2s;
-    white-space: nowrap;
-}
-
-.button:hover {
-    background-color: var(--accent-color-hover);
-}
-
-.button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.button-secondary {
-    background-color: var(--button-secondary-bg);
-    color: var(--text-color);
-}
-
-.button-secondary:hover {
-    background-color: var(--button-secondary-hover-bg);
-}
-
-.button-delete {
-    background-color: var(--error-color);
-    color: #fff;
-}
-
-.button-delete:hover {
-    background-color: #d32f2f;
-}
-
-/* --- Formulário e Inputs --- */
-.input-group {
-    margin-bottom: 15px;
-    width: 100%;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: var(--text-color);
-}
-
-.input-group input[type="email"],
-.input-group input[type="password"],
-.input-group input[type="text"],
-.input-group input[type="number"],
-.input-group input[type="date"],
-.input-group select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--input-background-color);
-    color: var(--input-text-color);
-    transition: border-color 0.2s;
-}
-
-.input-group input:focus,
-.input-group select:focus {
-    border-color: var(--primary-color);
-    outline: none;
-}
-
-/* --- Container e Seções de Autenticação (index.html) --- */
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: var(--padding-main);
-}
-
-.auth-section {
-    background-color: var(--card-background-color);
-    padding: 30px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-subtle);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-}
-
-.login-logo {
-    max-width: 100px;
-    margin-bottom: 20px;
-}
-
-.auth-section h2 {
-    color: var(--primary-color);
-    margin-bottom: 20px;
-}
-
-.switch-button {
-    margin-top: 15px;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    cursor: pointer;
-}
-
-.error-message {
-    color: var(--error-color);
-    margin-bottom: 15px;
-    display: none;
-}
-
-/* --- Dashboard Container --- */
-.dashboard-container {
-    padding: var(--padding-main);
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-/* --- Header e Ações --- */
+/* === HEADER === */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 0;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 25px;
 }
 
 .header h1 {
-    color: var(--primary-color);
-    font-size: 2rem;
-    margin: 0;
-}
-
-.app-logo {
-    max-width: 40px;
-    margin-right: 10px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 2rem;
+  font-weight: 700;
 }
 
 .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
 }
 
-/* Toggle de Tema */
-.theme-toggle-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.5rem;
-    color: var(--text-color);
-    padding: 5px;
-    transition: color 0.2s;
+/* === BOTÕES === */
+.button, .button-secondary {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
 }
 
-.theme-toggle-button::before {
-    content: '🌙'; /* Ícone de lua para tema escuro */
+.button {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255,255,255,0.1);
 }
 
-.light-theme .theme-toggle-button::before {
-    content: '☀️'; /* Ícone de sol para tema claro */
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(255,255,255,0.2);
 }
 
-/* --- Painel de Estatísticas --- */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+.button-secondary {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.button-secondary:hover { background: rgba(255,255,255,0.2); }
+
+/* === ESTATÍSTICAS === */
+.dashboard-stats-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
 .stat-card {
-    background-color: var(--card-background-color);
-    padding: 20px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-subtle);
-    border-left: 5px solid var(--primary-color);
+  background: var(--glass);
+  border-radius: var(--radius);
+  padding: 20px;
+  backdrop-filter: blur(var(--blur));
+  border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 25px rgba(0,0,0,0.3);
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 6px; height: 100%;
+  background: linear-gradient(180deg, var(--primary), var(--secondary));
+  border-radius: 6px;
 }
 
 .stat-card h3 {
-    margin-bottom: 5px;
-    color: var(--text-color);
-    font-size: 1rem;
-    opacity: 0.7;
+  font-size: 1rem;
+  opacity: 0.7;
+  margin-bottom: 8px;
 }
 
 .stat-card p {
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--primary-color);
+  font-size: 1.8rem;
+  font-weight: 700;
 }
 
-/* --- Filtros --- */
-.filter-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: var(--card-background-color);
-    border-radius: var(--border-radius);
-    overflow-x: auto; /* Para navegadores menores */
-}
-
-/* --- Lista de Devedores --- */
+/* === LISTA DE CLIENTES === */
 .debtors-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
 }
 
 .debtor-item {
-    background-color: var(--card-background-color);
-    padding: 20px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-subtle);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    border-left: 5px solid var(--accent-color);
+  background: var(--glass);
+  backdrop-filter: blur(var(--blur));
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
 }
 
-.debtor-info h3 {
-    margin-bottom: 5px;
-    color: var(--text-color);
-    font-size: 1.4rem;
+.debtor-item::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  width: 5px; height: 100%;
+  background: linear-gradient(180deg, var(--primary), var(--secondary));
+}
+
+.debtor-item:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.debtor-info h2 {
+  font-size: 1.3rem;
+  margin-bottom: 5px;
 }
 
 .debtor-info p {
-    margin: 2px 0;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    opacity: 0.8;
-}
-
-.debtor-status-bar {
-    flex-grow: 1;
-    max-width: 200px;
-    height: 10px;
-    background-color: var(--input-background-color);
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.debtor-status-fill {
-    height: 100%;
-    background-color: var(--success-color);
-    transition: width 0.5s ease-in-out;
+  opacity: 0.8;
+  margin: 2px 0;
+  font-size: 0.95rem;
 }
 
 .debtor-actions {
-    display: flex;
-    gap: 10px;
-    min-width: 280px;
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
 }
 
-.success-text {
-    color: var(--success-color);
-    font-weight: bold;
-}
-
-.error-text {
-    color: var(--error-color);
-    font-weight: bold;
-}
-
-/* --- Modais --- */
-.modal {
-    display: none; /* Escondido por padrão */
-    position: fixed; 
-    z-index: 100;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: var(--modal-overlay-color);
-    padding-top: 50px;
-}
-
+/* === MODAIS (ajuste leve) === */
 .modal-content {
-    background-color: var(--modal-background-color);
-    margin: 5% auto; 
-    padding: 30px;
-    border-radius: var(--border-radius);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    width: 80%;
-    max-width: 700px;
-    position: relative;
-    color: var(--text-color);
+  background: rgba(20,20,25,0.95);
+  border-radius: var(--radius);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 25px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
-.close-button {
-    color: var(--text-color);
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    background: none;
-    border: none;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: var(--error-color);
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* --- Modal Detalhes --- */
-.debtor-details-info {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px 20px;
-    margin-bottom: 20px;
-    padding: 15px;
-    border: 1px dashed var(--border-color);
-    border-radius: var(--border-radius);
-}
-
-.debtor-details-info p {
-    margin: 5px 0;
-}
-
-.toggle-switch {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    grid-column: 1 / 3; /* Ocupa as duas colunas */
-    margin-top: 10px;
-}
-
-/* Estilo do switch (checkbox) */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 24px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    transition: 0.4s;
-}
-
-input:checked + .slider {
-    background-color: var(--primary-color);
-}
-
-input:focus + .slider {
-    box-shadow: 0 0 1px var(--primary-color);
-}
-
-input:checked + .slider:before {
-    transform: translateX(16px);
-}
-
-/* Arredondamento */
-.slider.round {
-    border-radius: 24px;
-}
-
-.slider.round:before {
-    border-radius: 50%;
-}
-
-.payment-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-/* --- CORREÇÃO: Layout Grid para Pagamentos Pendentes --- */
-.payments-grid {
-    display: grid;
-    /* Colunas responsivas: largura mínima de 180px, auto-ajustável */
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.payment-item {
-    background-color: var(--card-background-color);
-    padding: 15px;
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    display: flex; 
-    justify-content: space-between;
-    align-items: center;
-    border-left: 5px solid;
-    border-color: var(--primary-color); /* Padrão */
-    transition: all 0.2s;
-    min-height: 80px;
-}
-
-/* Cores de status no item de pagamento */
-.payment-item[style*="var(--success-color)"] {
-    border-color: var(--success-color);
-}
-
-.payment-item[style*="var(--error-color)"] {
-    border-color: var(--error-color);
-}
-
-.payment-item p {
-    font-size: 0.9rem;
-}
-
-.payment-actions {
-    display: flex;
-    gap: 10px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
-    flex-wrap: wrap; /* Permite quebrar linha no celular */
-    align-items: flex-end;
-}
-
-.payment-actions .input-group {
-    flex: 1 1 150px; /* Flexível, com largura base de 150px */
-    margin-bottom: 0;
-}
-
-.payment-actions button {
-    flex-shrink: 0;
-    height: 40px; /* Alinha a altura com os inputs */
-}
-
-/* --- Modal Todas as Parcelas (Fullscreen Modal) --- */
-.fullscreen-modal .modal-content {
-    width: 90%;
-    max-width: 1000px;
-    margin: 2vh auto;
-    padding: 30px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    color: var(--text-color);
-    max-height: 96vh; /* Ajuste para caber melhor na tela */
-    overflow-y: hidden; /* O scroll será no grid */
-    display: flex;
-    flex-direction: column;
-}
-
-.fullscreen-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-    flex-shrink: 0; /* Não encolhe */
-}
-
-.fullscreen-modal-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-}
-
-/* --- CORREÇÃO: Layout Grid para Todas as Parcelas --- */
-.all-installments-grid {
-    display: grid;
-    /* Colunas responsivas: largura mínima de 180px, auto-ajustável */
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
-    flex-grow: 1; /* Ocupa o espaço restante */
-    overflow-y: auto; /* Permite scrollar apenas o grid */
-    padding: 5px; /* Padding interno */
-}
-
-.installment-square {
-    background-color: var(--button-secondary-bg);
-    padding: 15px;
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 5px solid;
-    transition: transform 0.2s ease-in-out;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 180px; 
-}
-
-.installment-square.paid {
-    border-left-color: var(--success-color);
-    background-color: rgba(76, 175, 80, 0.1); /* Suave verde */
-}
-
-.installment-square.unpaid {
-    border-left-color: var(--error-color);
-    background-color: rgba(255, 82, 82, 0.1); /* Suave vermelho */
-}
-
-.installment-mark-paid {
-    margin-top: 10px;
-    padding: 8px;
-    font-size: 0.8rem;
-    background-color: var(--primary-color);
-    color: var(--button-primary-text-color);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.installment-mark-paid:hover {
-    background-color: var(--accent-color-hover);
-}
-
-/* --- Seção Telegram Link --- */
-.telegram-link-section {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: var(--card-background-color);
-    border-radius: var(--border-radius);
-    border: 1px dashed var(--border-color);
-    text-align: center;
-}
-
-.link-code-display {
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--error-color);
-    margin: 10px 0;
-}
-
-/* --- Responsividade (Para Celular) --- */
+/* === RESPONSIVIDADE === */
 @media (max-width: 768px) {
-    
-    .dashboard-container {
-        padding: 10px;
-    }
-    
-    .header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-        padding-bottom: 10px;
-    }
-
-    .header h1 {
-        font-size: 1.5rem;
-    }
-    
-    .header-actions {
-        width: 100%;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .header-actions > .button, .header-actions > div {
-        flex: 1; 
-        text-align: center;
-        display: flex;
-        justify-content: center;
-    }
-    
-    .header-actions > div {
-        gap: 10px;
-        justify-content: flex-end;
-    }
-
-    /* Reduz o espaçamento nas estatísticas */
-    .stats-grid {
-        gap: 15px;
-    }
-
-    .stat-card {
-        padding: 15px;
-    }
-
-    .stat-card p {
-        font-size: 1.5rem;
-    }
-
-    /* Lista de devedores (Layout em coluna) */
-    .debtor-item {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 15px;
-    }
-
-    .debtor-info {
-        width: 100%;
-    }
-
-    .debtor-status-bar {
-        width: 100%;
-        max-width: 100%;
-        margin: 10px 0;
-    }
-
-    .debtor-actions {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        min-width: unset;
-    }
-    
-    .debtor-actions button {
-        width: 100%; 
-    }
-
-    /* Modais (Ocupa quase a tela toda) */
-    .modal-content, .fullscreen-modal .modal-content {
-        width: 95%; 
-        margin: 2.5vh auto;
-        padding: 15px;
-    }
-
-    .modal-content h2, .fullscreen-modal-header h2 {
-        font-size: 1.2rem;
-    }
-
-    /* Detalhes do Devedor (Layout em coluna) */
-    .debtor-details-info {
-        grid-template-columns: 1fr;
-        gap: 5px;
-    }
-
-    .toggle-switch {
-        grid-column: 1 / 2; /* Volta a ocupar 1 coluna */
-    }
-
-    /* Pagamentos (Layout de 2 ou 3 colunas) */
-    .payments-grid, .all-installments-grid {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
-    }
-    
-    /* Ações de Pagamento (Layout em coluna) */
-    .payment-actions {
-        flex-direction: column;
-        gap: 10px;
-        align-items: stretch;
-    }
-    
-    .payment-actions .input-group, 
-    .payment-actions button {
-        width: 100%;
-        margin-bottom: 0;
-    }
-
-    .payment-actions button {
-        height: 45px;
-    }
+  .header { flex-direction: column; align-items: flex-start; }
+  .header-actions { width: 100%; justify-content: space-between; }
+  .button { flex: 1; text-align: center; }
 }
