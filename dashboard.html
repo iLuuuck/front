@@ -15,14 +15,17 @@
         <header class="header">
             <img src="logo.png" alt="Logo do Gerenciador de Empréstimos" class="app-logo"> 
             <h1>Meus Devedores</h1>
-            <div class="header-actions" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end;">
-                <button id="addDebtorButton" class="button">Adicionar Novo Devedor</button>
-                
-                <div style="display: flex; gap: 10px;">
-                    <button id="themeToggleButton" class="theme-toggle-button" aria-label="Tema"></button>
-                    <button id="logoutButton" class="button">Sair</button>
-                </div>
-            </div>
+<div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+  <button id="addDebtorButton" class="button">+ Adicionar Devedor</button>
+  
+  <div class="menu-container">
+      <button class="menu-toggle" id="menuToggleButton">⋮</button>
+      <div class="menu-dropdown" id="menuDropdown">
+          <button id="themeToggleButton" class="menu-item">Mudar Tema</button>
+          <button id="logoutButton" class="menu-item">Sair</button>
+      </div>
+  </div>
+</div>
         </header>
 
         <p id="errorMessage" class="error-message" style="display: none;"></p>
@@ -162,5 +165,6 @@
 
 </body>
 </html>
+
 
 
