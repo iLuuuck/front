@@ -222,6 +222,41 @@ if (window.location.pathname.endsWith('dashboard.html')) {
 
     // --- Renderização de Devedores na Lista Principal ---
     function renderDebtors() {
+        function updateStats() {
+  const totalLoanedAmountEl = document.getElementById('totalLoanedAmount');
+  const activeClientsEl = document.getElementById('activeClients');
+  const totalToReceiveEl = document.getElementById('totalToReceive');
+  const toggleHideTotal = document.getElementById('toggleHideTotal');
+
+  if (!debtors || debtors.length === 0) {
+    totalLoanedAmountEl.textContent = "R$ 0,00";
+    activeClientsEl.textContent = "0";
+    totalToReceiveEl.textContent = "R$ 0,00";
+    return;
+  }
+
+  let totalLoaned = 0;
+  let totalToReceive = 0;
+
+  debtors.forEach(d => {
+    totalLoaned += d.loanedAmount || 0;
+    totalToReceive += d.totalToReceive || 0;
+  });
+
+  totalLoanedAmountEl.textContent = formatCurrency(totalLoaned);
+  activeClientsEl.textContent = debtors.length;
+  totalToReceiveEl.textContent = formatCurrency(totalToReceive);
+
+  // toggle de esconder total
+  toggleHideTotal.addEventListener("change", () => {
+    if (toggleHideTotal.checked) {
+      totalToReceiveEl.style.filter = "blur(6px)";
+    } else {
+      totalToReceiveEl.style.filter = "none";
+    }
+  });
+}
+
         debtorsList.innerHTML = '';
         if (debtors.length === 0) {
             debtorsList.innerHTML = '<p class="loading-message">Nenhum devedor cadastrado. Clique em "Adicionar Novo Devedor" para começar.</p>';
@@ -822,6 +857,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                 ...doc.data()
             }));
             renderDebtors();
+            updateStats();
 
             if (debtorDetailModal.style.display === 'flex' && currentDebtorId) {
                 const currentDebtorInModal = debtors.find(d => d.id === currentDebtorId);
@@ -976,5 +1012,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 } // FIM do if (window.location.pathname.endsWith('dashboard.html')) { ... }
  // FIM do document.addEventListener('DOMContentLoaded', ...)
+
 
 
