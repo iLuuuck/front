@@ -1,36 +1,34 @@
 /* --- Variáveis de Tema (Base para cores e tipografia) --- */
 :root {
-    /* Cores do tema escuro (Dark Mode) - Mais vivas e modernas */
-    --primary-color: #00e676; /* Verde VIBRANTE */
+    --primary-color: #00e676;
     --accent-color: #00e676;
-    --accent-color-hover: #00c853; /* Verde um pouco mais escuro */
+    --accent-color-hover: #00c853;
     --error-color: #ff5252;
     --success-color: #4caf50;
 
-    --background-color: #121212; /* Fundo bem escuro */
-    --text-color: #e0e0e0; /* Texto cinza claro */
-    --card-background-color: #1e1e1e; /* Fundo de card mais escuro */
-    --border-color: #424242; /* Borda sutil */
+    --background-color: #121212;
+    --text-color: #e0e0e0;
+    --card-background-color: #1e1e1e;
+    --border-color: #424242;
     --input-background-color: #2c2c2c;
-    --input-text-color: #ffffff; /* Texto do input branco puro */
+    --input-text-color: #ffffff;
     --modal-overlay-color: rgba(0, 0, 0, 0.7);
     --modal-background-color: #242424;
     --button-secondary-bg: #424242;
     --button-secondary-hover-bg: #5a5a5a;
-    --button-primary-text-color: #121212; /* Texto escuro para botões primários */
+    --button-primary-text-color: #121212;
     --box-shadow-color: rgba(0, 0, 0, 0.4);
-    --theme-icon: "🌙"; /* ícone padrão (tema escuro) */
+    --theme-icon: "🌙";
 }
 
-/* Cores do tema claro (Light Mode) - Clean e moderno */
+/* Tema claro */
 body.light-theme {
-    --primary-color: #1a73e8; /* Azul moderno do Google */
+    --primary-color: #1a73e8;
     --accent-color: #1a73e8;
     --accent-color-hover: #145cb3;
     --error-color: #d32f2f;
     --success-color: #388e3c;
-
-    --background-color: #f0f2f5; /* Cinza claro */
+    --background-color: #f0f2f5;
     --text-color: #333;
     --card-background-color: #ffffff;
     --border-color: #e0e0e0;
@@ -42,10 +40,10 @@ body.light-theme {
     --button-secondary-hover-bg: #ccc;
     --button-primary-text-color: #ffffff;
     --box-shadow-color: rgba(0, 0, 0, 0.1);
-    --theme-icon: "☀️"; /* ícone para o tema claro */
+    --theme-icon: "☀️";
 }
 
-/* --- Estilos Gerais --- */
+/* --- Estilo base --- */
 body {
     display: flex;
     flex-direction: column;
@@ -54,23 +52,20 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 20px;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif; /* Fonte moderna e legível */
+    font-family: 'Inter', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
-    line-height: 1.6;
 }
 
 h1, h2, h3 {
     color: var(--primary-color);
-    margin-top: 0;
 }
 
 button {
     cursor: pointer;
     border: none;
-    border-radius: 8px; /* Botões mais arredondados */
+    border-radius: 8px;
     padding: 12px 20px;
     font-size: 1em;
     font-weight: 500;
@@ -78,76 +73,10 @@ button {
 }
 
 button:active {
-    transform: scale(0.98); /* Efeito de 'pressão' */
+    transform: scale(0.98);
 }
 
-/* --- Layout da Página de Login (index.html) --- */
-.container {
-    background-color: var(--card-background-color);
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px var(--box-shadow-color); /* Sombra mais suave e moderna */
-    width: 100%;
-    max-width: 450px;
-    text-align: center;
-}
-
-.auth-section {
-    display: block;
-}
-
-.auth-section h2 {
-    margin-bottom: 30px;
-    color: var(--primary-color);
-}
-
-.input-group {
-    margin-bottom: 25px;
-    text-align: left;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.input-group input {
-    width: 100%;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: var(--input-background-color);
-    color: var(--input-text-color);
-    font-size: 1em;
-    box-sizing: border-box;
-    transition: border-color 0.3s;
-}
-
-.input-group input:focus {
-    outline: none;
-    border-color: var(--primary-color); /* Borda destacada ao focar */
-}
-
-.button {
-    background-color: var(--accent-color);
-    color: var(--button-primary-text-color);
-    width: 100%;
-}
-
-.button:hover {
-    background-color: var(--accent-color-hover);
-}
-
-.error-message {
-    color: var(--error-color);
-    margin-top: 20px;
-    font-weight: bold;
-    font-size: 0.9em;
-}
-
-/* --- Layout da Página do Dashboard (dashboard.html) --- */
+/* --- Container principal --- */
 .dashboard-container {
     max-width: 1400px;
     margin: 20px auto;
@@ -158,21 +87,6 @@ button:active {
     width: 100%;
     box-sizing: border-box;
 }
-
-.welcome-message {
-    font-size: 1.5em;
-    text-align: center;
-    color: var(--primary-color);
-    margin-bottom: 30px;
-    font-weight: 600;
-    animation: fadeIn 1s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
 
 .header {
     display: flex;
@@ -188,788 +102,14 @@ button:active {
 .header h1 {
     flex-grow: 1;
     margin: 0;
-    min-width: 150px;
     font-size: 2.5em;
 }
 
-.header-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
-    justify-content: flex-end;
-}
-
-.header-actions .button {
-    padding: 10px 18px;
-    font-size: 0.9em;
-}
-
-/* ---------------------------
-   ALTERAÇÃO: botão tema só ícone
-   --------------------------- */
-.theme-toggle-button {
-    background-color: var(--accent-color);
-    border: none;
-    color: var(--button-primary-text-color);
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 0.9em;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.theme-toggle-button::before {
-    content: var(--theme-icon);
-    font-size: 1.2em;
-    line-height: 1;
-    color: var(--text-color);
-}
-
-.theme-toggle-button:hover {
-    background-color: var(--accent-color-hover);
-}
-
-.theme-toggle-button:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-}
-/* --------------------------- End alteração --------------------------- */
-
-.dashboard-content {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-.debtors-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
-    padding: 10px;
-    min-height: 200px;
-    grid-auto-rows: minmax(min-content, max-content);
-}
-
-.loading-message {
-    grid-column: 1 / -1;
-    text-align: center;
-    color: var(--text-color);
-    opacity: 0.7;
-    font-style: italic;
-    padding: 20px;
-}
-
-.loading-message.error {
-    color: var(--error-color);
-}
-
-/* Efeito 3D e moderno para os itens de devedores */
-.debtor-item {
-    background-color: var(--input-background-color);
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px var(--box-shadow-color),
-                0 6px 20px var(--box-shadow-color);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border: 1px solid var(--border-color);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.debtor-item:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 16px var(--box-shadow-color),
-                0 12px 40px var(--box-shadow-color);
-}
-
-.debtor-info h2 {
-    margin-top: 0;
-    margin-bottom: 12px;
-    font-size: 1.6em;
-    color: var(--primary-color);
-}
-
-.debtor-info p {
-    margin: 6px 0;
-    font-size: 0.95em;
-    color: var(--text-color);
-}
-
-.debtor-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 20px;
-    justify-content: flex-end;
-}
-
-.debtor-actions .small-button {
-    padding: 10px 15px;
-    font-size: 0.85em;
-    flex-grow: 1;
-    min-width: 100px;
-    color: var(--button-primary-text-color);
-    border-radius: 6px;
-}
-
-.edit-debtor-btn {
-    background-color: var(--primary-color);
-}
-
-.edit-debtor-btn:hover {
-    background-color: var(--primary-color);
-    filter: brightness(0.9);
-}
-
-.delete-debtor-btn {
-    background-color: var(--error-color);
-}
-
-.delete-debtor-btn:hover {
-    background-color: var(--error-color);
-    filter: brightness(0.9);
-}
-
-/* --- Estilos de Modais (Pop-ups) --- */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: var(--modal-overlay-color);
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    box-sizing: border-box;
-}
-
-.modal-content {
-    background-color: var(--modal-background-color);
-    margin: auto;
-    padding: 40px;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 650px;
-    box-shadow: 0 8px 25px var(--box-shadow-color);
-    position: relative;
-    color: var(--text-color);
-    box-sizing: border-box;
-}
-
-.modal-header {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 25px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
-    gap: 15px;
-}
-
-.modal-header h2 {
-    margin: 0;
-    color: var(--primary-color);
-    font-size: 2em;
-}
-
-.close-button {
-    color: var(--text-color);
-    font-size: 32px;
-    font-weight: bold;
-    background: none;
-    padding: 0;
-    border: none;
-    align-self: flex-end;
-    transition: color 0.2s;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: var(--error-color);
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.modal-body .input-group {
-    margin-bottom: 20px;
-}
-
-.modal-body .input-group label {
-    font-size: 0.95em;
-    margin-bottom: 8px;
-}
-
-.modal-body .input-group input,
-.modal-body .input-group select {
-    padding: 12px;
-    font-size: 1em;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background-color: var(--input-background-color);
-    color: var(--input-text-color);
-    width: 100%;
-    box-sizing: border-box;
-    transition: border-color 0.3s;
-}
-
-.modal-body .input-group input:focus,
-.modal-body .input-group select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 30px;
-    gap: 15px;
-}
-
-.modal-footer .button {
-    width: auto;
-    padding: 12px 25px;
-}
-
-/* Detalhes do Devedor Específicos */
-.debtor-details-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 25px;
-}
-
-.debtor-details-grid p {
-    margin: 0;
-    font-size: 0.95em;
-}
-
-.debtor-details-grid p strong {
-    color: var(--primary-color);
-}
-
-.toggle-switch {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    justify-content: flex-end;
-}
-
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--border-color);
-    transition: .4s;
-    border-radius: 24px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 2px;
-    bottom: 2px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-}
-
-input:checked + .slider {
-    background-color: var(--primary-color);
-}
-
-input:focus + .slider {
-    box-shadow: 0 0 1px var(--primary-color);
-}
-
-input:checked + .slider:before {
-    transform: translateX(20px);
-}
-
-.hidden-value {
-    filter: blur(5px);
-    transition: filter 0.3s ease;
-}
-
-/* Pagamentos Grid */
-.payments-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.toggle-button {
-    background: none;
-    border: none;
-    color: var(--text-color);
-    font-size: 1em;
-    padding: 0 5px;
-    text-decoration: underline;
-    opacity: 0.8;
-    transition: opacity 0.2s ease;
-}
-
-.toggle-button:hover {
-    opacity: 1;
-}
-
-.payments-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 12px;
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    margin-bottom: 25px;
-}
-
-.payment-square {
-    background-color: var(--button-secondary-bg);
-    padding: 12px;
-    border-radius: 8px;
-    text-align: center;
-    font-size: 0.85em;
-    color: var(--text-color);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 90px;
-    position: relative;
-    box-shadow: 0 2px 5px var(--box-shadow-color);
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-.payment-square:hover:not(.paid) {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 10px var(--box-shadow-color);
-    cursor: pointer;
-}
-
-.payment-square.paid {
-    background-color: var(--success-color);
-    color: white;
-}
-
-.payment-square.selected {
-    border: 2px solid var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(0, 230, 118, 0.4);
-}
-
-.payment-square span {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.payment-square .delete-payment-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.3em;
-    padding: 0;
-    line-height: 1;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.payment-square .delete-payment-btn:hover {
-    opacity: 1;
-    color: var(--error-color);
-}
-
-.payment-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: flex-end;
-    margin-top: 20px;
-}
-
-.payment-actions .input-group {
-    flex-grow: 1;
-    margin-bottom: 0;
-    min-width: 180px;
-}
-
-.payment-actions .button {
-    width: auto;
-    padding: 12px 20px;
-    flex-shrink: 0;
-}
-
-/* --- NOVO MODAL EM TELA CHEIA E CSS DO PRINT --- */
-.fullscreen-content {
-    max-width: 95%;
-    width: 95%;
-    max-height: 95vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.payments-grid-fullscreen {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 15px;
-    overflow-y: auto;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: var(--input-background-color);
-    flex-grow: 1;
-}
-
-/* Estilos específicos para a impressão */
-@media print {
-    body > *:not(.modal) {
-        display: none !important;
-    }
-
-    .modal {
-        position: static;
-        display: block !important;
-        width: auto;
-        height: auto;
-        background: none;
-        overflow: visible;
-        padding: 0;
-    }
-
-    .modal-content.fullscreen-content {
-        max-width: 100%;
-        width: 100%;
-        max-height: none;
-        box-shadow: none;
-        border: none;
-        background-color: #fff;
-        color: #000;
-        padding: 0;
-    }
-
-    .payments-header, .payment-actions {
-        display: none;
-    }
-    
-    .print-header {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .payments-grid-fullscreen {
-        border: none;
-        background: none;
-        padding: 0;
-        max-height: none;
-        overflow: visible;
-    }
-
-    .payment-square {
-        border: 1px solid #ccc;
-        color: #000;
-        background-color: #f4f4f4;
-        box-shadow: none;
-        page-break-inside: avoid;
-    }
-
-    .payment-square.paid {
-        background-color: #e0f2f1;
-    }
-
-    .payment-square .delete-payment-btn {
-        display: none;
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .dashboard-container {
-        margin: 10px;
-        padding: 20px;
-    }
-
-    .header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-
-    .header h1 {
-        font-size: 2em;
-    }
-
-    .header-actions {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .debtors-list {
-        grid-template-columns: 1fr;
-    }
-
-    .modal-content {
-        max-width: 95%;
-        padding: 25px;
-    }
-
-    .debtor-details-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .payment-square {
-        min-height: 80px;
-    }
-
-    .payment-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .payment-actions .button {
-        width: 100%;
-    }
-}
-
-@media (max-width: 480px) {
-    body {
-        padding: 10px;
-    }
-
-    .container, .dashboard-container {
-        padding: 15px;
-    }
-
-    .modal-content {
-        padding: 20px;
-    }
-
-    .modal-header h2 {
-        font-size: 1.6em;
-    }
-
-    .header h1 {
-        font-size: 1.8em;
-    }
-
-    .header-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .debtor-item .debtor-info h2 {
-        font-size: 1.4em;
-    }
-
-    .debtor-actions .small-button {
-        font-size: 0.8em;
-    }
-
-    .payments-grid {
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    }
-
-    .payment-square span {
-        font-size: 0.75em;
-    }
-
-    .payment-actions .input-group {
-        min-width: unset;
-    }
-}
-
-.app-logo {
-    height: 300px;
-    width: auto;
-    margin-right: 20px;
-}
-
-@media (max-width: 768px) {
-    .app-logo {
-        height: 150px;
-        margin-right: 0;
-        margin-bottom: 10px;
-    }
-    .header {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    .header h1 {
-        flex-grow: unset;
-    }
-}
-
-.login-logo {
-    display: block;
-    max-width: 300px;
-    height: auto;
-    margin: 0 auto 30px auto;
-}
-
-@media (max-width: 480px) {
-    .login-logo {
-        max-width: 200px;
-        margin-bottom: 20px;
-    }
-}
-
-.filter-actions {
-    display: flex;
-    flex-wrap: nowrap; /* Mantém todos na mesma linha */
-    justify-content: center;
-    gap: 12px; /* Espaçamento entre os botões */
-    margin-bottom: 30px;
-}
-
-.filter-actions .button {
-    flex: 0 0 auto; /* impede crescimento ou encolhimento */
-    width: auto;    /* remove a largura 100% herdada */
-    padding: 8px 16px; /* ajuste de padding para ficar proporcional */
-    font-size: 0.9em;  /* tamanho de fonte adequado */
-}
-
-@media (max-width: 600px) {
-    .filter-actions {
-        flex-direction: column;
-        align-items: center;
-    }
-    .filter-actions .button {
-        width: 100%;
-    }
-}
-
-
-/* --- Estilo para o Modal de Tela Cheia de Parcelas --- */
-.fullscreen-modal {
-    display: flex;
-    position: fixed;
-    z-index: 9999; /* Valor alto para garantir que apareça na frente de tudo */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.8);
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.fullscreen-modal-content {
-    background-color: var(--background-color);
-    padding: 30px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 800px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    color: var(--text-color);
-    max-height: 90vh;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-}
-
-.fullscreen-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-}
-
-.fullscreen-modal-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-}
-
-.all-installments-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 15px;
-}
-
-.installment-square {
-    background-color: var(--secondary-color);
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 5px solid;
-    transition: transform 0.2s ease-in-out;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-}
-
-.installment-square:hover {
-    transform: translateY(-2px);
-}
-
-.installment-square.paid {
-    border-color: var(--success-color);
-}
-
-.installment-square.pending {
-    border-color: var(--error-color);
-}
-
-.installment-square p {
-    margin: 0;
-    font-size: 0.9em;
-}
-
-.installment-square h4 {
-    margin: 0;
-    font-size: 1.1em;
-}
-
-.installment-square .status {
-    font-weight: bold;
-    color: var(--success-color);
-}
-
-.installment-square.pending .status {
-    color: var(--error-color);
-}
-
-/* --- MENU DE TRÊS PONTOS (ao lado do botão) --- */
+/* === MENU DE 3 PONTOS === */
 .header-actions {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: nowrap;
 }
 
 .menu-container {
@@ -987,7 +127,6 @@ input:checked + .slider:before {
     padding: 6px 10px;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    height: 100%;
 }
 
 .menu-toggle:hover {
@@ -1029,55 +168,135 @@ input:checked + .slider:before {
     background-color: var(--button-secondary-hover-bg);
 }
 
-/* === DASHBOARD DE ESTATÍSTICAS === */
+/* === MINI DASHBOARD DE ESTATÍSTICAS === */
 .stats-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-bottom: 25px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
 }
 
 .stat-card {
-  background-color: var(--card-background-color);
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  padding: 20px 25px;
-  box-shadow: 0 4px 12px var(--box-shadow-color);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
+    background-color: var(--card-background-color);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    padding: 20px 25px;
+    box-shadow: 0 4px 12px var(--box-shadow-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
 }
 
 .stat-card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 5px;
-  background-color: var(--primary-color);
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 5px;
+    background-color: var(--primary-color);
 }
 
 .stat-title {
-  font-size: 0.95em;
-  opacity: 0.8;
-  margin-bottom: 10px;
+    font-size: 0.95em;
+    opacity: 0.8;
+    margin-bottom: 10px;
 }
 
 .stat-card h2 {
-  font-size: 1.8em;
-  color: var(--primary-color);
-  margin: 0;
+    font-size: 1.8em;
+    color: var(--primary-color);
+    margin: 0;
 }
 
 .stat-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .switch.small-switch {
-  transform: scale(0.8);
+    transform: scale(0.8);
+}
+
+/* --- Listagem de Devedores --- */
+.debtors-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 10px;
+    min-height: 200px;
+}
+
+.debtor-item {
+    background-color: var(--input-background-color);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px var(--box-shadow-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.debtor-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 16px var(--box-shadow-color);
+}
+
+.debtor-info h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.6em;
+    color: var(--primary-color);
+}
+
+.debtor-info p {
+    margin: 6px 0;
+    font-size: 0.95em;
+    color: var(--text-color);
+}
+
+/* --- Responsivo --- */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 20px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+
+    .header-actions {
+        justify-content: center;
+    }
+
+    .menu-toggle {
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stat-card h2 {
+        font-size: 1.4em;
+    }
+
+    .header h1 {
+        font-size: 1.8em;
+    }
+}
+
+.app-logo {
+    height: 100px;
+    width: auto;
+    margin-right: 10px;
 }
