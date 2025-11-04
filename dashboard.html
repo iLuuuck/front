@@ -13,7 +13,30 @@
 <body>
     <div class="dashboard-container">
         <header class="header">
-            <img src="logo.png" alt="Logo do Gerenciador de Empréstimos" class="app-logo"> 
+            <img src="logo.png" alt="Logo do Gerenciador de Empréstimos" class="app-logo">
+            <!-- === DASHBOARD DE ESTATÍSTICAS === -->
+<div class="stats-container">
+  <div class="stat-card">
+    <p class="stat-title">Total Emprestado</p>
+    <h2 id="totalLoanedAmount">R$ 0,00</h2>
+  </div>
+
+  <div class="stat-card">
+    <p class="stat-title">Clientes Ativos</p>
+    <h2 id="activeClients">0</h2>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-header">
+      <p class="stat-title">Total a Receber (Líquido)</p>
+      <label class="switch small-switch">
+        <input type="checkbox" id="toggleHideTotal">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    <h2 id="totalToReceive">R$ 0,00</h2>
+  </div>
+</div>
             <h1>Meus Devedores</h1>
 <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
   <button id="addDebtorButton" class="button">+ Adicionar Devedor</button>
@@ -166,4 +189,5 @@
 
 </body>
 </html>
+
 
