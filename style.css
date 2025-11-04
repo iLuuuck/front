@@ -1028,6 +1028,7 @@ input:checked + .slider:before {
 .menu-item:hover {
     background-color: var(--button-secondary-hover-bg);
 }
+
 /* === DASHBOARD DE ESTATÍSTICAS === */
 .stats-container {
   display: grid;
@@ -1080,4 +1081,5 @@ input:checked + .slider:before {
 .switch.small-switch {
   transform: scale(0.8);
 }
+
 
