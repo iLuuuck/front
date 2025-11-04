@@ -55,15 +55,12 @@ let currentUserId = null;
 let currentFilter = 'all'; 
 let currentViewMode = localStorage.getItem('debtorsViewMode') || 'card'; 
 
-// --- VARIÁVEIS DE ELEMENTOS HTML (GLOBALIZADAS para acesso fácil) ---
-// Estas serão inicializadas em DOMContentLoaded, apenas se existirem na página.
+// --- VARIÁVEIS DE ELEMENTOS HTML (Inicializadas como null) ---
+// Estas só serão definidas *se* existirem e *quando* estivermos na página correta.
 let debtorsList, errorMessageDiv;
 let addEditDebtorModal, debtorDetailModal;
 
-// Elementos do Modal de Adicionar/Editar
 let addEditDebtorForm, addEditModalTitle, debtorNameInput, debtorDescriptionInput, loanedAmountInput, frequencyInput, calculationTypeSelect, perInstallmentFields, percentageFields, amountPerInstallmentInput, installmentsInput, interestPercentageInput, startDateInput;
-
-// Elementos do Modal de Detalhes
 let detailDebtorName, detailDebtorDescription, detailLoanedAmount, detailTotalToReceive, detailInterestPercentage, toggleTotalToReceive, detailInstallments, detailAmountPerInstallment, detailStartDate, detailFrequency, paymentsGrid, paymentAmountInput, paymentDateInput;
 
 
@@ -118,12 +115,10 @@ function showError(message) {
 }
 
 
-// --- FUNÇÕES DE MODAL (AGORA USANDO VARIÁVEIS GLOBAIS) ---
+// --- FUNÇÕES DE MODAL ---
 
 function openAddEditDebtorModal(id = null) {
-    // VERIFICAÇÃO FINAL E CRÍTICA: Se a variável global não foi inicializada,
-    // significa que o código está rodando na página errada ou antes do DOM
-    // estar pronto.
+    // ESSA VERIFICAÇÃO É MANTIDA para evitar o erro se a função for chamada acidentalmente fora do dashboard
     if (!addEditDebtorForm) { 
         console.error("Erro CRÍTICO: Tentativa de abrir modal sem formulário inicializado. Ignorando.");
         return;
@@ -411,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Lógica do Dashboard - Executada apenas em dashboard.html ---
     if (window.location.pathname.endsWith('dashboard.html')) {
         
-        // --- 1. INICIALIZAÇÃO DE TODOS OS ELEMENTOS NO DOMContentLoaded (CORREÇÃO) ---
+        // --- 1. INICIALIZAÇÃO DE TODOS OS ELEMENTOS NO DOMContentLoaded (AGORA SÓ AQUI) ---
         
         const logoutButton = document.getElementById('logoutButton');
         const addDebtorButton = document.getElementById('addDebtorButton');
