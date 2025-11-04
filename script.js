@@ -47,6 +47,309 @@ if (!firebase.apps.length) {
 const db = firebase.firestore();
 const auth = firebase.auth(); 
 
+// --- VARIÁVEIS GLOBAIS DE ESTADO ---
+let debtors = [];
+let currentDebtorId = null;
+let selectedPaymentIndex = null;
+let currentUserId = null; 
+let currentFilter = 'all'; 
+let currentViewMode = localStorage.getItem('debtorsViewMode') || 'card'; 
+
+// --- ELEMENTOS HTML GLOBAIS (Inicializados em DOMContentLoaded) ---
+let addEditDebtorModal, debtorDetailModal, debtorsList, errorMessageDiv;
+
+// --- FUNÇÕES AUXILIARES GLOBAIS ---
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount);
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
+}
+
+function calculateLoanDetails(loanedAmount, amountPerInstallment, installments, interestPercentage, calculationType) {
+    let totalToReceive;
+    let calculatedAmountPerInstallment;
+    let calculatedInstallments = parseInt(installments); 
+
+    if (isNaN(calculatedInstallments) || calculatedInstallments <= 0) {
+        calculatedInstallments = 1; 
+    }
+
+    if (calculationType === 'perInstallment') {
+        calculatedAmountPerInstallment = parseFloat(amountPerInstallment);
+        totalToReceive = calculatedAmountPerInstallment * calculatedInstallments;
+        interestPercentage = ((totalToReceive - loanedAmount) / loanedAmount * 100);
+        if (isNaN(interestPercentage) || !isFinite(interestPercentage)) {
+            interestPercentage = 0;
+        }
+    } else { // percentage
+        interestPercentage = parseFloat(interestPercentage);
+        totalToReceive = loanedAmount * (1 + interestPercentage / 100);
+        calculatedAmountPerInstallment = totalToReceive / calculatedInstallments;
+    }
+
+    return {
+        totalToReceive: parseFloat(totalToReceive.toFixed(2)),
+        amountPerInstallment: parseFloat(calculatedAmountPerInstallment.toFixed(2)),
+        installments: calculatedInstallments,
+        interestPercentage: parseFloat(interestPercentage.toFixed(2))
+    };
+}
+
+function showError(message) {
+    if(!errorMessageDiv) return;
+    errorMessageDiv.textContent = message;
+    errorMessageDiv.style.display = 'block';
+    setTimeout(() => {
+        errorMessageDiv.style.display = 'none';
+    }, 5000);
+}
+
+// --- FUNÇÕES DE MODAL MOVIDAS PARA ESCOPO GLOBAL (CORREÇÃO CRÍTICA) ---
+function openAddEditDebtorModal(id = null) {
+    const addEditDebtorForm = document.getElementById('addEditDebtorForm');
+    const addEditModalTitle = document.getElementById('addEditModalTitle');
+    const calculationTypeSelect = document.getElementById('calculationType');
+    const perInstallmentFields = document.getElementById('perInstallmentFields');
+    const amountPerInstallmentInput = document.getElementById('amountPerInstallmentInput');
+    const percentageFields = document.getElementById('percentageFields');
+    const interestPercentageInput = document.getElementById('interestPercentageInput');
+    const installmentsInput = document.getElementById('installments'); 
+    const debtorNameInput = document.getElementById('debtorName');
+    const debtorDescriptionInput = document.getElementById('debtorDescription');
+    const loanedAmountInput = document.getElementById('loanedAmount');
+    const startDateInput = document.getElementById('startDate');
+    const frequencyInput = document.getElementById('frequency'); 
+    
+    if (addEditDebtorForm) {
+         addEditDebtorForm.reset(); 
+    } else {
+        console.error("Formulário de Devedor não encontrado.");
+        return;
+    }
+    
+    currentDebtorId = id;
+
+    if (calculationTypeSelect) {
+        calculationTypeSelect.value = 'perInstallment';
+        if(perInstallmentFields) perInstallmentFields.style.display = 'block';
+        if(amountPerInstallmentInput) amountPerInstallmentInput.setAttribute('required', 'required');
+        if(percentageFields) percentageFields.style.display = 'none';
+        if(interestPercentageInput) interestPercentageInput.removeAttribute('required');
+    }
+    if(installmentsInput) installmentsInput.setAttribute('required', 'required'); 
+
+    if (id) {
+        if(addEditModalTitle) addEditModalTitle.textContent = 'Editar Devedor';
+        const debtor = debtors.find(d => d.id === id);
+        if (debtor) {
+            if(debtorNameInput) debtorNameInput.value = debtor.name;
+            if(debtorDescriptionInput) debtorDescriptionInput.value = debtor.description;
+            if(loanedAmountInput) loanedAmountInput.value = debtor.loanedAmount;
+            if(startDateInput) startDateInput.value = debtor.startDate;
+            if(installmentsInput) installmentsInput.value = debtor.installments; 
+            if (frequencyInput) frequencyInput.value = debtor.frequency; 
+
+            if (debtor.amountPerInstallment && debtor.totalToReceive && debtor.loanedAmount) {
+                const calculatedInterestFromInstallment = ((debtor.totalToReceive - debtor.loanedAmount) / debtor.loanedAmount * 100);
+                if (Math.abs(calculatedInterestFromInstallment - debtor.interestPercentage) < 0.01 || debtor.interestPercentage === 0) {
+                    if(calculationTypeSelect) calculationTypeSelect.value = 'perInstallment';
+                    if(amountPerInstallmentInput) amountPerInstallmentInput.value = debtor.amountPerInstallment;
+                    if(perInstallmentFields) perInstallmentFields.style.display = 'block';
+                    if(percentageFields) percentageFields.style.display = 'none';
+                } else {
+                    if(calculationTypeSelect) calculationTypeSelect.value = 'percentage';
+                    if(interestPercentageInput) interestPercentageInput.value = debtor.interestPercentage;
+                    if(perInstallmentFields) perInstallmentFields.style.display = 'none';
+                    if(percentageFields) percentageFields.style.display = 'block';
+                }
+            } else if (debtor.interestPercentage) {
+                if(calculationTypeSelect) calculationTypeSelect.value = 'percentage';
+                if(interestPercentageInput) interestPercentageInput.value = debtor.interestPercentage;
+                if(perInstallmentFields) perInstallmentFields.style.display = 'none';
+                if(percentageFields) percentageFields.style.display = 'block';
+            }
+            
+            if (calculationTypeSelect) {
+                if (calculationTypeSelect.value === 'perInstallment') {
+                     if(amountPerInstallmentInput) amountPerInstallmentInput.setAttribute('required', 'required');
+                     if(interestPercentageInput) interestPercentageInput.removeAttribute('required');
+                } else {
+                     if(amountPerInstallmentInput) amountPerInstallmentInput.removeAttribute('required');
+                     if(interestPercentageInput) interestPercentageInput.setAttribute('required', 'required');
+                }
+            }
+        }
+    } else {
+        if(addEditModalTitle) addEditModalTitle.textContent = 'Adicionar Novo Devedor';
+    }
+    if(addEditDebtorModal) addEditDebtorModal.style.display = 'flex';
+}
+
+
+function openDebtorDetailModal(id) {
+    const detailDebtorName = document.getElementById('detailDebtorName');
+    const detailDebtorDescription = document.getElementById('detailDebtorDescription');
+    const detailLoanedAmount = document.getElementById('detailLoanedAmount');
+    const detailTotalToReceive = document.getElementById('detailTotalToReceive');
+    const detailInterestPercentage = document.getElementById('detailInterestPercentage');
+    const toggleTotalToReceive = document.getElementById('toggleTotalToReceive');
+    const detailInstallments = document.getElementById('detailInstallments');
+    const detailAmountPerInstallment = document.getElementById('detailAmountPerInstallment');
+    const detailStartDate = document.getElementById('detailStartDate');
+    const detailFrequency = document.getElementById('detailFrequency'); 
+    
+    currentDebtorId = id;
+    const debtor = debtors.find(d => d.id === id);
+
+    if (debtor) {
+        if(detailDebtorName) detailDebtorName.textContent = debtor.name;
+        if(detailDebtorDescription) detailDebtorDescription.textContent = debtor.description;
+        if(detailLoanedAmount) detailLoanedAmount.textContent = formatCurrency(debtor.loanedAmount);
+        if(detailTotalToReceive) detailTotalToReceive.textContent = formatCurrency(debtor.totalToReceive);
+        if(detailInterestPercentage) detailInterestPercentage.textContent = `${debtor.interestPercentage || 0}%`; 
+        if(detailInstallments) detailInstallments.textContent = debtor.installments;
+        if(detailAmountPerInstallment) detailAmountPerInstallment.textContent = formatCurrency(debtor.amountPerInstallment);
+        if(detailStartDate) detailStartDate.textContent = formatDate(debtor.startDate);
+        if(detailFrequency) detailFrequency.textContent = debtor.frequency === 'daily' ? 'Diário' : debtor.frequency === 'weekly' ? 'Semanal' : 'Mensal';
+
+        const hideTotalToReceivePref = localStorage.getItem('hideTotalToReceive');
+        if (hideTotalToReceivePref === 'true') {
+            if(toggleTotalToReceive) toggleTotalToReceive.checked = true;
+            if(detailTotalToReceive) detailTotalToReceive.classList.add('hidden-value');
+        } else {
+            if(toggleTotalToReceive) toggleTotalToReceive.checked = false;
+            if(detailTotalToReceive) detailTotalToReceive.classList.remove('hidden-value');
+        }
+
+        renderPaymentsGrid(debtor);
+        if(debtorDetailModal) debtorDetailModal.style.display = 'flex';
+    }
+}
+
+
+function deleteDebtor(id) {
+    try {
+        db.collection('debtors').doc(id).delete();
+    } catch (error) {
+        console.error("Erro ao excluir devedor:", error);
+        showError('Erro ao excluir devedor. Verifique o console para mais detalhes.');
+    }
+}
+
+// O restante das funções dependentes (renderPaymentsGrid, removeLastPayment, etc.) 
+// pode permanecer onde estava, desde que usem as variáveis globais inicializadas.
+// As funções principais de modal agora estão no escopo global e acessíveis.
+
+// --- RENDERIZAÇÃO E LÓGICA DOS QUADRADINHOS DE PAGAMENTO (Mantida para ser referenciada em openDebtorDetailModal) ---
+function renderPaymentsGrid(debtor) {
+    const paymentsGrid = document.getElementById('paymentsGrid');
+    const paymentAmountInput = document.getElementById('paymentAmount');
+    const paymentDateInput = document.getElementById('paymentDate');
+    
+    if(!paymentsGrid) return;
+    paymentsGrid.innerHTML = '';
+    selectedPaymentIndex = null;
+
+    const validPayments = (Array.isArray(debtor.payments) ? debtor.payments : []).filter(p => p && typeof p.amount === 'number' && p.amount > 0);
+    let consumablePayments = validPayments.map(p => ({ ...p, amountRemaining: p.amount }));
+    consumablePayments.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    for (let i = 0; i < debtor.installments; i++) {
+        const installmentNumber = i + 1;
+        const expectedAmountForThisInstallment = debtor.amountPerInstallment;
+        let paidAmountForThisInstallment = 0;
+        let paymentDateForThisInstallment = 'Pendente';
+        let isPaid = false;
+
+        for (let j = 0; j < consumablePayments.length; j++) {
+            const payment = consumablePayments[j];
+            if (payment && payment.amountRemaining > 0) {
+                const amountNeededForThisInstallment = expectedAmountForThisInstallment - paidAmountForThisInstallment;
+                const amountToApply = Math.min(amountNeededForThisInstallment, payment.amountRemaining);
+
+                paidAmountForThisInstallment += amountToApply;
+                payment.amountRemaining -= amountToApply;
+
+                if (amountToApply > 0 && paymentDateForThisInstallment === 'Pendente') {
+                     paymentDateForThisInstallment = payment.date;
+                }
+
+                if (paidAmountForThisInstallment >= expectedAmountForThisInstallment - 0.005) { 
+                    isPaid = true;
+                    break;
+                }
+            }
+        }
+
+        const displayAmount = Math.min(paidAmountForThisInstallment, expectedAmountForThisInstallment);
+        const displayRemaining = expectedAmountForThisInstallment - displayAmount;
+
+        const paymentSquare = document.createElement('div');
+        paymentSquare.className = `payment-square ${isPaid ? 'paid' : ''}`;
+        paymentSquare.setAttribute('data-index', i);
+
+        let valueHtml = `<span>${formatCurrency(expectedAmountForThisInstallment)}</span>`;
+        if (!isPaid) {
+            valueHtml = `<span>${formatCurrency(displayAmount)} (Faltam: ${formatCurrency(displayRemaining)})</span>`;
+        }
+
+        let dateHtml = `<span style="font-size: 0.75em; color: ${isPaid ? 'rgba(255,255,255,0.8)' : 'var(--text-color)'};">` +
+                        (paymentDateForThisInstallment === 'Pendente' ? 'Pendente' : `Pago: ${formatDate(paymentDateForThisInstallment)}`) +
+                        `</span>`;
+
+        paymentSquare.innerHTML = `
+            <span>Parc. ${installmentNumber}</span>
+            ${valueHtml}
+            ${dateHtml}
+            ${isPaid ? `<button class="delete-payment-btn" data-payment-original-index="${i}">X</button>` : ''}
+        `;
+
+        paymentSquare.addEventListener('click', () => {
+            document.querySelectorAll('.payment-square').forEach(sq => sq.classList.remove('selected'));
+            if (!isPaid) {
+                paymentSquare.classList.add('selected');
+                selectedPaymentIndex = i;
+                if(paymentAmountInput) paymentAmountInput.value = (expectedAmountForThisInstallment - paidAmountForThisInstallment).toFixed(2);
+                if(paymentDateInput) paymentDateInput.valueAsDate = new Date();
+            } else {
+                selectedPaymentIndex = null;
+                if(paymentAmountInput) paymentAmountInput.value = '';
+                if(paymentDateInput) paymentDateInput.valueAsDate = null;
+            }
+        });
+
+        const deleteBtn = paymentSquare.querySelector('.delete-payment-btn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (confirm('Tem certeza que deseja remover o último pagamento registrado deste devedor?')) {
+                    removeLastPayment(currentDebtorId);
+                }
+            });
+        }
+        paymentsGrid.appendChild(paymentSquare);
+    }
+
+    const nextPendingSquare = paymentsGrid.querySelector('.payment-square:not(.paid)');
+    if (nextPendingSquare) {
+        const nextExpectedAmount = debtor.amountPerInstallment;
+        if(paymentAmountInput) paymentAmountInput.value = nextExpectedAmount.toFixed(2);
+        if(paymentDateInput) paymentDateInput.valueAsDate = new Date();
+        document.querySelectorAll('.payment-square').forEach(sq => sq.classList.remove('selected'));
+        nextPendingSquare.classList.add('selected');
+        selectedPaymentIndex = parseInt(nextPendingSquare.getAttribute('data-index'));
+    } else {
+        if(paymentAmountInput) paymentAmountInput.value = '';
+        if(paymentDateInput) paymentDateInput.valueAsDate = null;
+        selectedPaymentIndex = null;
+    }
+}
+
+
 // --- EXECUÇÃO PRINCIPAL: Espera o carregamento completo do DOM ---
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -88,28 +391,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Lógica do Dashboard - Executada apenas em dashboard.html ---
     if (window.location.pathname.endsWith('dashboard.html')) {
         
-        // --- Variáveis e Elementos do Dashboard ---
+        // --- INICIALIZAÇÃO DOS ELEMENTOS GLOBAIS DENTRO DO DOMContentLoaded ---
         const logoutButton = document.getElementById('logoutButton');
         const addDebtorButton = document.getElementById('addDebtorButton');
-        const debtorsList = document.getElementById('debtorsList');
-        const errorMessageDiv = document.getElementById('errorMessage');
-
-        // Modals e seus elementos
-        const debtorDetailModal = document.getElementById('debtorDetailModal');
-        const addEditDebtorModal = document.getElementById('addEditDebtorModal');
+        debtorsList = document.getElementById('debtorsList');
+        errorMessageDiv = document.getElementById('errorMessage');
+        
+        // Modals e seus elementos (para serem usados pelas funções globais)
+        debtorDetailModal = document.getElementById('debtorDetailModal');
+        addEditDebtorModal = document.getElementById('addEditDebtorModal');
         const closeButtons = document.querySelectorAll('.modal .close-button');
 
+
         // Elementos do Modal de Detalhes do Devedor
-        const detailDebtorName = document.getElementById('detailDebtorName');
-        const detailDebtorDescription = document.getElementById('detailDebtorDescription');
-        const detailLoanedAmount = document.getElementById('detailLoanedAmount');
-        const detailTotalToReceive = document.getElementById('detailTotalToReceive');
-        const detailInterestPercentage = document.getElementById('detailInterestPercentage');
         const toggleTotalToReceive = document.getElementById('toggleTotalToReceive');
-        const detailInstallments = document.getElementById('detailInstallments');
-        const detailAmountPerInstallment = document.getElementById('detailAmountPerInstallment');
-        const detailStartDate = document.getElementById('detailStartDate');
-        const detailFrequency = document.getElementById('detailFrequency'); 
+        const detailTotalToReceive = document.getElementById('detailTotalToReceive');
         const paymentsGrid = document.getElementById('paymentsGrid');
         const paymentAmountInput = document.getElementById('paymentAmount');
         const paymentDateInput = document.getElementById('paymentDate');
@@ -118,20 +414,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const showAllInstallmentsButton = document.getElementById('showAllInstallmentsButton'); 
 
         // Elementos do Modal de Adicionar/Editar Devedor
-        const addEditModalTitle = document.getElementById('addEditModalTitle');
         const addEditDebtorForm = document.getElementById('addEditDebtorForm');
-        const debtorNameInput = document.getElementById('debtorName');
-        const debtorDescriptionInput = document.getElementById('debtorDescription');
-        const loanedAmountInput = document.getElementById('loanedAmount');
-        const frequencyInput = document.getElementById('frequency'); 
         const calculationTypeSelect = document.getElementById('calculationType');
         const perInstallmentFields = document.getElementById('perInstallmentFields');
         const percentageFields = document.getElementById('percentageFields');
         const amountPerInstallmentInput = document.getElementById('amountPerInstallmentInput');
-        const installmentsInput = document.getElementById('installments'); 
         const interestPercentageInput = document.getElementById('interestPercentageInput');
-        const startDateInput = document.getElementById('startDate');
-        const saveDebtorButton = document.getElementById('saveDebtorButton');
+        const installmentsInput = document.getElementById('installments'); 
 
         // Elementos do filtro
         const filterAllButton = document.getElementById('filterAllButton');
@@ -143,19 +432,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const viewModeListButton = document.getElementById('viewModeListButton');
         const viewModeCardButton = document.getElementById('viewModeCardButton');
 
-        let debtors = [];
-        let currentDebtorId = null;
-        let selectedPaymentIndex = null;
-        let currentUserId = null; 
-        let currentFilter = 'all'; 
-        let currentViewMode = localStorage.getItem('debtorsViewMode') || 'card'; 
-        
-        // --- Listener do Botão de Logout (Restaurado) ---
+
+        // --- Listener do Botão de Logout ---
         if(logoutButton) {
             logoutButton.addEventListener('click', async () => {
                 try {
                     await auth.signOut();
-                    // Redirecionamento é feito automaticamente pelo auth.onAuthStateChanged
                 } catch (error) {
                     console.error("Erro ao fazer logout:", error);
                     showError('Erro ao fazer logout.');
@@ -163,59 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-
-        // --- Funções Auxiliares (Simplificadas) ---
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount);
-        }
-
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            const [year, month, day] = dateString.split('-');
-            return `${day}/${month}/${year}`;
-        }
-
-        function calculateLoanDetails(loanedAmount, amountPerInstallment, installments, interestPercentage, calculationType) {
-            let totalToReceive;
-            let calculatedAmountPerInstallment;
-            let calculatedInstallments = parseInt(installments); 
-
-            if (isNaN(calculatedInstallments) || calculatedInstallments <= 0) {
-                calculatedInstallments = 1; 
-            }
-
-            if (calculationType === 'perInstallment') {
-                calculatedAmountPerInstallment = parseFloat(amountPerInstallment);
-                totalToReceive = calculatedAmountPerInstallment * calculatedInstallments;
-                interestPercentage = ((totalToReceive - loanedAmount) / loanedAmount * 100);
-                if (isNaN(interestPercentage) || !isFinite(interestPercentage)) {
-                    interestPercentage = 0;
-                }
-            } else { // percentage
-                interestPercentage = parseFloat(interestPercentage);
-                totalToReceive = loanedAmount * (1 + interestPercentage / 100);
-                calculatedAmountPerInstallment = totalToReceive / calculatedInstallments;
-            }
-
-            return {
-                totalToReceive: parseFloat(totalToReceive.toFixed(2)),
-                amountPerInstallment: parseFloat(calculatedAmountPerInstallment.toFixed(2)),
-                installments: calculatedInstallments,
-                interestPercentage: parseFloat(interestPercentage.toFixed(2))
-            };
-        }
-
-
-        function showError(message) {
-            if(!errorMessageDiv) return;
-            errorMessageDiv.textContent = message;
-            errorMessageDiv.style.display = 'block';
-            setTimeout(() => {
-                errorMessageDiv.style.display = 'none';
-            }, 5000);
-        }
-        
         // --- Lógica de View Mode (Lista vs. Card) ---
         function applyViewMode(mode) {
             if (!debtorsList) return; 
@@ -283,7 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
 
-                // Listener para o botão "Ver Detalhes" (CORRIGIDO)
+                // Listener para o botão "Ver Detalhes"
                 debtorItem.querySelector('.view-details-btn').addEventListener('click', (event) => {
                     event.stopPropagation(); 
                     openDebtorDetailModal(debtor.id);
@@ -296,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                // Listener para o botão "Editar" (CORRIGIDO)
+                // Listener para o botão "Editar"
                 debtorItem.querySelector('.edit-debtor-btn').addEventListener('click', (event) => {
                     event.stopPropagation();
                     openAddEditDebtorModal(debtor.id);
@@ -313,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // --- Adicionar/Editar Devedor ---
+        // --- Listener Botão "Adicionar Novo Devedor" (CORRIGIDO) ---
         if(addDebtorButton) {
              addDebtorButton.addEventListener('click', () => openAddEditDebtorModal());
         }
@@ -338,7 +567,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if(addEditDebtorForm) {
             addEditDebtorForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
-
+                
+                // Definições de inputs para o form submit
+                const debtorNameInput = document.getElementById('debtorName');
+                const debtorDescriptionInput = document.getElementById('debtorDescription');
+                const loanedAmountInput = document.getElementById('loanedAmount');
+                const startDateInput = document.getElementById('startDate');
+                const frequencyInput = document.getElementById('frequency'); 
+                
                 const name = debtorNameInput.value;
                 const description = debtorDescriptionInput.value;
                 const loanedAmount = parseFloat(loanedAmountInput.value);
@@ -378,7 +614,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 try {
                     if (currentDebtorId) {
-                        // Atualizar devedor existente no Firestore
                         const debtorRef = db.collection('debtors').doc(currentDebtorId);
                         const doc = await debtorRef.get();
                         if (doc.exists) {
@@ -410,7 +645,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             showError("Devedor não encontrado para atualização.");
                         }
                     } else {
-                        // Adicionar novo devedor ao Firestore
                         if (!currentUserId) {
                             showError("Erro: Usuário não autenticado. Não é possível adicionar devedor.");
                             return;
@@ -440,112 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-
-        function openAddEditDebtorModal(id = null) {
-            if (addEditDebtorForm) {
-                 addEditDebtorForm.reset(); 
-            } else {
-                console.error("Formulário de Devedor não encontrado.");
-                return;
-            }
-            
-            currentDebtorId = id;
-
-            if (calculationTypeSelect) {
-                calculationTypeSelect.value = 'perInstallment';
-                if(perInstallmentFields) perInstallmentFields.style.display = 'block';
-                if(amountPerInstallmentInput) amountPerInstallmentInput.setAttribute('required', 'required');
-                if(percentageFields) percentageFields.style.display = 'none';
-                if(interestPercentageInput) interestPercentageInput.removeAttribute('required');
-            }
-            if(installmentsInput) installmentsInput.setAttribute('required', 'required'); 
-
-            if (id) {
-                if(addEditModalTitle) addEditModalTitle.textContent = 'Editar Devedor';
-                const debtor = debtors.find(d => d.id === id);
-                if (debtor) {
-                    if(debtorNameInput) debtorNameInput.value = debtor.name;
-                    if(debtorDescriptionInput) debtorDescriptionInput.value = debtor.description;
-                    if(loanedAmountInput) loanedAmountInput.value = debtor.loanedAmount;
-                    if(startDateInput) startDateInput.value = debtor.startDate;
-                    if(installmentsInput) installmentsInput.value = debtor.installments; 
-                    if (frequencyInput) frequencyInput.value = debtor.frequency; 
-
-                    if (debtor.amountPerInstallment && debtor.totalToReceive && debtor.loanedAmount) {
-                        const calculatedInterestFromInstallment = ((debtor.totalToReceive - debtor.loanedAmount) / debtor.loanedAmount * 100);
-                        if (Math.abs(calculatedInterestFromInstallment - debtor.interestPercentage) < 0.01 || debtor.interestPercentage === 0) {
-                            if(calculationTypeSelect) calculationTypeSelect.value = 'perInstallment';
-                            if(amountPerInstallmentInput) amountPerInstallmentInput.value = debtor.amountPerInstallment;
-                            if(perInstallmentFields) perInstallmentFields.style.display = 'block';
-                            if(percentageFields) percentageFields.style.display = 'none';
-                        } else {
-                            if(calculationTypeSelect) calculationTypeSelect.value = 'percentage';
-                            if(interestPercentageInput) interestPercentageInput.value = debtor.interestPercentage;
-                            if(perInstallmentFields) perInstallmentFields.style.display = 'none';
-                            if(percentageFields) percentageFields.style.display = 'block';
-                        }
-                    } else if (debtor.interestPercentage) {
-                        if(calculationTypeSelect) calculationTypeSelect.value = 'percentage';
-                        if(interestPercentageInput) interestPercentageInput.value = debtor.interestPercentage;
-                        if(perInstallmentFields) perInstallmentFields.style.display = 'none';
-                        if(percentageFields) percentageFields.style.display = 'block';
-                    }
-                    
-                    if (calculationTypeSelect) {
-                        if (calculationTypeSelect.value === 'perInstallment') {
-                             if(amountPerInstallmentInput) amountPerInstallmentInput.setAttribute('required', 'required');
-                             if(interestPercentageInput) interestPercentageInput.removeAttribute('required');
-                        } else {
-                             if(amountPerInstallmentInput) amountPerInstallmentInput.removeAttribute('required');
-                             if(interestPercentageInput) interestPercentageInput.setAttribute('required', 'required');
-                        }
-                    }
-                }
-            } else {
-                if(addEditModalTitle) addEditModalTitle.textContent = 'Adicionar Novo Devedor';
-            }
-            if(addEditDebtorModal) addEditDebtorModal.style.display = 'flex';
-        }
-
-        async function deleteDebtor(id) {
-            try {
-                await db.collection('debtors').doc(id).delete();
-            } catch (error) {
-                console.error("Erro ao excluir devedor:", error);
-                showError('Erro ao excluir devedor. Verifique o console para mais detalhes.');
-            }
-        }
-
-        // --- Modal de Detalhes do Devedor ---
-        function openDebtorDetailModal(id) {
-            currentDebtorId = id;
-            const debtor = debtors.find(d => d.id === id);
-
-            if (debtor) {
-                if(detailDebtorName) detailDebtorName.textContent = debtor.name;
-                if(detailDebtorDescription) detailDebtorDescription.textContent = debtor.description;
-                if(detailLoanedAmount) detailLoanedAmount.textContent = formatCurrency(debtor.loanedAmount);
-                if(detailTotalToReceive) detailTotalToReceive.textContent = formatCurrency(debtor.totalToReceive);
-                if(detailInterestPercentage) detailInterestPercentage.textContent = `${debtor.interestPercentage || 0}%`; 
-                if(detailInstallments) detailInstallments.textContent = debtor.installments;
-                if(detailAmountPerInstallment) detailAmountPerInstallment.textContent = formatCurrency(debtor.amountPerInstallment);
-                if(detailStartDate) detailStartDate.textContent = formatDate(debtor.startDate);
-                if(detailFrequency) detailFrequency.textContent = debtor.frequency === 'daily' ? 'Diário' : debtor.frequency === 'weekly' ? 'Semanal' : 'Mensal';
-
-                const hideTotalToReceivePref = localStorage.getItem('hideTotalToReceive');
-                if (hideTotalToReceivePref === 'true') {
-                    if(toggleTotalToReceive) toggleTotalToReceive.checked = true;
-                    if(detailTotalToReceive) detailTotalToReceive.classList.add('hidden-value');
-                } else {
-                    if(toggleTotalToReceive) toggleTotalToReceive.checked = false;
-                    if(detailTotalToReceive) detailTotalToReceive.classList.remove('hidden-value');
-                }
-
-                renderPaymentsGrid(debtor);
-                if(debtorDetailModal) debtorDetailModal.style.display = 'flex';
-            }
-        }
-
+        // Listener para o toggle de Esconder Total a Receber
         if(toggleTotalToReceive) {
             toggleTotalToReceive.addEventListener('change', () => {
                 if (toggleTotalToReceive.checked) {
@@ -557,108 +686,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-
-        // --- RENDERIZAÇÃO E LÓGICA DOS QUADRADINHOS DE PAGAMENTO ---
-        function renderPaymentsGrid(debtor) {
-            if(!paymentsGrid) return;
-            paymentsGrid.innerHTML = '';
-            selectedPaymentIndex = null;
-
-            const validPayments = (Array.isArray(debtor.payments) ? debtor.payments : []).filter(p => p && typeof p.amount === 'number' && p.amount > 0);
-            let consumablePayments = validPayments.map(p => ({ ...p, amountRemaining: p.amount }));
-            consumablePayments.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            for (let i = 0; i < debtor.installments; i++) {
-                const installmentNumber = i + 1;
-                const expectedAmountForThisInstallment = debtor.amountPerInstallment;
-                let paidAmountForThisInstallment = 0;
-                let paymentDateForThisInstallment = 'Pendente';
-                let isPaid = false;
-
-                for (let j = 0; j < consumablePayments.length; j++) {
-                    const payment = consumablePayments[j];
-                    if (payment && payment.amountRemaining > 0) {
-                        const amountNeededForThisInstallment = expectedAmountForThisInstallment - paidAmountForThisInstallment;
-                        const amountToApply = Math.min(amountNeededForThisInstallment, payment.amountRemaining);
-
-                        paidAmountForThisInstallment += amountToApply;
-                        payment.amountRemaining -= amountToApply;
-
-                        if (amountToApply > 0 && paymentDateForThisInstallment === 'Pendente') {
-                             paymentDateForThisInstallment = payment.date;
-                        }
-
-                        if (paidAmountForThisInstallment >= expectedAmountForThisInstallment - 0.005) { 
-                            isPaid = true;
-                            break;
-                        }
-                    }
-                }
-
-                const displayAmount = Math.min(paidAmountForThisInstallment, expectedAmountForThisInstallment);
-                const displayRemaining = expectedAmountForThisInstallment - displayAmount;
-
-                const paymentSquare = document.createElement('div');
-                paymentSquare.className = `payment-square ${isPaid ? 'paid' : ''}`;
-                paymentSquare.setAttribute('data-index', i);
-
-                let valueHtml = `<span>${formatCurrency(expectedAmountForThisInstallment)}</span>`;
-                if (!isPaid) {
-                    valueHtml = `<span>${formatCurrency(displayAmount)} (Faltam: ${formatCurrency(displayRemaining)})</span>`;
-                }
-
-                let dateHtml = `<span style="font-size: 0.75em; color: ${isPaid ? 'rgba(255,255,255,0.8)' : 'var(--text-color)'};">` +
-                                (paymentDateForThisInstallment === 'Pendente' ? 'Pendente' : `Pago: ${formatDate(paymentDateForThisInstallment)}`) +
-                                `</span>`;
-
-                paymentSquare.innerHTML = `
-                    <span>Parc. ${installmentNumber}</span>
-                    ${valueHtml}
-                    ${dateHtml}
-                    ${isPaid ? `<button class="delete-payment-btn" data-payment-original-index="${i}">X</button>` : ''}
-                `;
-
-                paymentSquare.addEventListener('click', () => {
-                    document.querySelectorAll('.payment-square').forEach(sq => sq.classList.remove('selected'));
-                    if (!isPaid) {
-                        paymentSquare.classList.add('selected');
-                        selectedPaymentIndex = i;
-                        if(paymentAmountInput) paymentAmountInput.value = (expectedAmountForThisInstallment - paidAmountForThisInstallment).toFixed(2);
-                        if(paymentDateInput) paymentDateInput.valueAsDate = new Date();
-                    } else {
-                        selectedPaymentIndex = null;
-                        if(paymentAmountInput) paymentAmountInput.value = '';
-                        if(paymentDateInput) paymentDateInput.valueAsDate = null;
-                    }
-                });
-
-                const deleteBtn = paymentSquare.querySelector('.delete-payment-btn');
-                if (deleteBtn) {
-                    deleteBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (confirm('Tem certeza que deseja remover o último pagamento registrado deste devedor?')) {
-                            removeLastPayment(currentDebtorId);
-                        }
-                    });
-                }
-                paymentsGrid.appendChild(paymentSquare);
-            }
-
-            const nextPendingSquare = paymentsGrid.querySelector('.payment-square:not(.paid)');
-            if (nextPendingSquare) {
-                const nextExpectedAmount = debtor.amountPerInstallment;
-                if(paymentAmountInput) paymentAmountInput.value = nextExpectedAmount.toFixed(2);
-                if(paymentDateInput) paymentDateInput.valueAsDate = new Date();
-                document.querySelectorAll('.payment-square').forEach(sq => sq.classList.remove('selected'));
-                nextPendingSquare.classList.add('selected');
-                selectedPaymentIndex = parseInt(nextPendingSquare.getAttribute('data-index'));
-            } else {
-                if(paymentAmountInput) paymentAmountInput.value = '';
-                if(paymentDateInput) paymentDateInput.valueAsDate = null;
-                selectedPaymentIndex = null;
-            }
-        }
-
 
         // --- Lógica para o botão "Exibir Todas as Parcelas" ---
         function showAllInstallments() {
@@ -775,7 +802,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if(fillAmountButton) {
             fillAmountButton.addEventListener('click', () => {
-                if (currentDebtorId === null) return;
+                if (currentDebtorId === null || !paymentsGrid) return;
                 const debtor = debtors.find(d => d.id === currentDebtorId);
                 if (debtor) {
                     const nextPendingSquare = paymentsGrid.querySelector('.payment-square:not(.paid)');
@@ -843,11 +870,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(addEditDebtorModal) addEditDebtorModal.style.display = 'none';
             }
         });
-        
-        // --- EXPOSIÇÃO GLOBAL DE FUNÇÕES (CORREÇÃO CRÍTICA) ---
-        // Isso garante que funções chamadas por 'onclick' no HTML sejam encontradas.
-        window.openAddEditDebtorModal = openAddEditDebtorModal;
-        window.openDebtorDetailModal = openDebtorDetailModal;
 
 
         // --- Listener em Tempo Real do Firestore ---
@@ -873,6 +895,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (debtorDetailModal && debtorDetailModal.style.display === 'flex' && currentDebtorId) {
                     const currentDebtorInModal = debtors.find(d => d.id === currentDebtorId);
                     if (currentDebtorInModal) {
+                        // Re-renderiza a grade de pagamentos no modal se ele estiver aberto
                         renderPaymentsGrid(currentDebtorInModal);
                     } else {
                         if(debtorDetailModal) debtorDetailModal.style.display = 'none';
