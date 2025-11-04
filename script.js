@@ -86,8 +86,30 @@ function formatCurrency(amount) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount);
 }
 
-function formatDate(timestamp) {
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+// CORREÇÃO: Função para formatar data, lidando com Timestamps ou Strings
+function formatDate(timestampOrString) {
+    let date;
+
+    if (timestampOrString && timestampOrString.toDate) {
+        // 1. É um Timestamp do Firebase
+        date = timestampOrString.toDate();
+    } else if (typeof timestampOrString === 'string') {
+        // 2. É uma string (como '2025-10-27')
+        // Adicionamos 'T00:00:00' para evitar problemas de fuso horário ao criar a Date de uma string 'YYYY-MM-DD'
+        date = new Date(timestampOrString + 'T00:00:00'); 
+    } else if (timestampOrString instanceof Date) {
+        // 3. É um objeto Date
+        date = timestampOrString;
+    } else {
+        // 4. Valor inválido
+        return 'N/A';
+    }
+
+    // Verifica se a data é válida antes de tentar formatar
+    if (isNaN(date.getTime())) {
+        return 'Data Inválida';
+    }
+
     return date.toLocaleDateString('pt-BR');
 }
 
@@ -412,7 +434,8 @@ if (window.location.pathname.endsWith('dashboard.html')) {
 
         // 1. Calcula as datas esperadas das parcelas
         const expectedInstallments = [];
-        let currentDate = new Date(debtor.startDate + 'T00:00:00'); // Garante que a hora seja 00:00:00
+        // NOTA: Usamos a string para garantir que a data inicial seja consistente
+        let currentDate = new Date(debtor.startDate + 'T00:00:00'); 
 
         for (let i = 1; i <= installments; i++) {
             let expectedDate = new Date(currentDate);
@@ -434,7 +457,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
 
             expectedInstallments.push({
                 index: i,
-                expectedDate: expectedDate.toISOString().split('T')[0],
+                expectedDate: expectedDate, // Mantemos como objeto Date para fácil formatação
                 amount: amountPerInstallment,
                 paid: !!payment,
                 paymentDate: payment ? formatDate(payment.date) : 'N/A',
@@ -473,7 +496,12 @@ if (window.location.pathname.endsWith('dashboard.html')) {
 
         // Atualiza campos de pagamento
         paymentAmountInput.value = remainingAmount > 0 ? amountPerInstallment.toFixed(2) : '0.00';
-        paymentDateInput.valueAsDate = new Date();
+        // CORREÇÃO: Define a data de pagamento como a data de hoje
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Mês começa do 0
+        const dd = String(today.getDate()).padStart(2, '0');
+        paymentDateInput.value = `${yyyy}-${mm}-${dd}`;
     }
 
     function showDebtorDetails(id) {
@@ -534,9 +562,12 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             return;
         }
 
+        // Criamos o objeto Date primeiro para evitar problemas de fuso horário, depois convertemos para Timestamp
+        const dateObject = new Date(paymentDate + 'T00:00:00');
+        
         const newPayment = {
             amount: paymentAmount,
-            date: firebase.firestore.Timestamp.fromDate(new Date(paymentDate))
+            date: firebase.firestore.Timestamp.fromDate(dateObject)
         };
 
         const updatedPayments = [...debtor.payments, newPayment].sort((a, b) => {
@@ -553,7 +584,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         .then(() => {
             alert('Pagamento adicionado com sucesso!');
             // O snapshot listener do loadDebtors cuidará de re-renderizar
-            // Re-renderiza manualmente para fechar o modal ou atualizar os detalhes
+            // Fechamos o modal para garantir o refresh de dados
             debtorDetailModal.style.display = 'none';
         })
         .catch(error => {
@@ -605,7 +636,9 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             const item = document.createElement('div');
             item.className = `installment-square ${inst.paid ? 'paid' : 'unpaid'}`;
             
-            const isDueOrOverdue = !inst.paid && inst.expectedDate <= new Date();
+            const expectedDateOnly = new Date(inst.expectedDate.toDateString());
+            const todayDateOnly = new Date(new Date().toDateString());
+            const isDueOrOverdue = !inst.paid && expectedDateOnly <= todayDateOnly;
 
             item.innerHTML = `
                 <h4>Parcela ${inst.index}</h4>
@@ -635,8 +668,14 @@ if (window.location.pathname.endsWith('dashboard.html')) {
 
         const index = parseInt(installmentIndex);
         const amountValue = parseFloat(amount);
-        const paymentDate = new Date(); // Data de hoje
-
+        
+        // Usa a data de hoje formatada (YYYY-MM-DD) para consistência no Firebase
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayString = `${yyyy}-${mm}-${dd}`;
+        
         // Verifica se a parcela já foi paga (evitar duplicação)
         if (debtor.payments.length >= index) {
             alert('Esta parcela já foi paga.');
@@ -644,9 +683,12 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         }
 
         // Adiciona o pagamento (o sistema de cálculo de parcelas depende da ordem)
+        // Criamos o objeto Date primeiro para evitar problemas de fuso horário, depois convertemos para Timestamp
+        const dateObject = new Date(todayString + 'T00:00:00');
+        
         const newPayment = {
             amount: amountValue,
-            date: firebase.firestore.Timestamp.fromDate(paymentDate)
+            date: firebase.firestore.Timestamp.fromDate(dateObject)
         };
 
         const updatedPayments = [...debtor.payments, newPayment].sort((a, b) => {
