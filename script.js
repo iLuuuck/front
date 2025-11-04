@@ -952,8 +952,29 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             }
         });
     }
+// --- MENU DE TRÊS PONTOS ---
+document.addEventListener("DOMContentLoaded", () => {
+  const menuToggle = document.getElementById("menuToggleButton");
+  const menuDropdown = document.getElementById("menuDropdown");
+
+  if (menuToggle && menuDropdown) {
+    menuToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menuDropdown.classList.toggle("active");
+    });
+
+    // Fecha o menu ao clicar fora
+    document.addEventListener("click", (e) => {
+      if (!menuDropdown.contains(e.target) && !menuToggle.contains(e.target)) {
+        menuDropdown.classList.remove("active");
+      }
+    });
+  }
+});
+
 
 } // FIM do if (window.location.pathname.endsWith('dashboard.html')) { ... }
  // FIM do document.addEventListener('DOMContentLoaded', ...)
+
 
 
