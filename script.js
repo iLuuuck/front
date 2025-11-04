@@ -56,7 +56,7 @@ let currentFilter = 'all';
 let currentViewMode = localStorage.getItem('debtorsViewMode') || 'card'; 
 
 // --- VARIÁVEIS DE ELEMENTOS HTML (GLOBALIZADAS para acesso fácil) ---
-// Serão inicializadas dentro de DOMContentLoaded
+// Estas serão inicializadas em DOMContentLoaded, apenas se existirem na página.
 let debtorsList, errorMessageDiv;
 let addEditDebtorModal, debtorDetailModal;
 
@@ -79,7 +79,6 @@ function formatDate(dateString) {
 }
 
 function calculateLoanDetails(loanedAmount, amountPerInstallment, installments, interestPercentage, calculationType) {
-    // ... (Mantida a lógica de cálculo)
     let totalToReceive;
     let calculatedAmountPerInstallment;
     let calculatedInstallments = parseInt(installments); 
@@ -119,19 +118,21 @@ function showError(message) {
 }
 
 
-// --- FUNÇÕES DE MODAL (AGORA USANDO VARIÁVEIS GLOBAIS INICIALIZADAS) ---
+// --- FUNÇÕES DE MODAL (AGORA USANDO VARIÁVEIS GLOBAIS) ---
 
 function openAddEditDebtorModal(id = null) {
-    // AQUI USAMOS AS VARIÁVEIS JÁ INICIALIZADAS NO DOMContentLoaded
+    // VERIFICAÇÃO FINAL E CRÍTICA: Se a variável global não foi inicializada,
+    // significa que o código está rodando na página errada ou antes do DOM
+    // estar pronto.
     if (!addEditDebtorForm) { 
-        console.error("Erro CRÍTICO: Formulário de Devedor (addEditDebtorForm) não foi inicializado corretamente.");
-        showError("Erro interno. Tente recarregar a página.");
+        console.error("Erro CRÍTICO: Tentativa de abrir modal sem formulário inicializado. Ignorando.");
         return;
     }
     
     addEditDebtorForm.reset(); 
     currentDebtorId = id;
 
+    // Lógica para resetar campos
     if (calculationTypeSelect) {
         calculationTypeSelect.value = 'perInstallment';
         if(perInstallmentFields) perInstallmentFields.style.display = 'block';
@@ -145,6 +146,7 @@ function openAddEditDebtorModal(id = null) {
         if(addEditModalTitle) addEditModalTitle.textContent = 'Editar Devedor';
         const debtor = debtors.find(d => d.id === id);
         if (debtor) {
+            // Preenchimento dos campos
             if(debtorNameInput) debtorNameInput.value = debtor.name;
             if(debtorDescriptionInput) debtorDescriptionInput.value = debtor.description;
             if(loanedAmountInput) loanedAmountInput.value = debtor.loanedAmount;
@@ -173,6 +175,7 @@ function openAddEditDebtorModal(id = null) {
                 if(percentageFields) percentageFields.style.display = 'block';
             }
             
+            // Re-aplicar a lógica de 'required'
             if (calculationTypeSelect) {
                 if (calculationTypeSelect.value === 'perInstallment') {
                      if(amountPerInstallmentInput) amountPerInstallmentInput.setAttribute('required', 'required');
@@ -197,6 +200,7 @@ function openDebtorDetailModal(id) {
     const debtor = debtors.find(d => d.id === id);
 
     if (debtor) {
+        // Preenchimento dos detalhes
         if(detailDebtorName) detailDebtorName.textContent = debtor.name;
         if(detailDebtorDescription) detailDebtorDescription.textContent = debtor.description;
         if(detailLoanedAmount) detailLoanedAmount.textContent = formatCurrency(debtor.loanedAmount);
@@ -207,6 +211,7 @@ function openDebtorDetailModal(id) {
         if(detailStartDate) detailStartDate.textContent = formatDate(debtor.startDate);
         if(detailFrequency) detailFrequency.textContent = debtor.frequency === 'daily' ? 'Diário' : debtor.frequency === 'weekly' ? 'Semanal' : 'Mensal';
 
+        // Lógica de esconder total
         const hideTotalToReceivePref = localStorage.getItem('hideTotalToReceive');
         if (hideTotalToReceivePref === 'true') {
             if(toggleTotalToReceive) toggleTotalToReceive.checked = true;
@@ -232,9 +237,9 @@ function deleteDebtor(id) {
 }
 
 
-// --- RENDERIZAÇÃO E LÓGICA DOS QUADRADINHOS DE PAGAMENTO (Mantida) ---
+// --- RENDERIZAÇÃO E LÓGICA DOS QUADRADINHOS DE PAGAMENTO ---
 function renderPaymentsGrid(debtor) {
-    if(!paymentsGrid) return;
+    if(!paymentsGrid || !paymentAmountInput || !paymentDateInput) return; // Checagem para evitar erros se o elemento não existir
     paymentsGrid.innerHTML = '';
     selectedPaymentIndex = null;
 
@@ -299,12 +304,12 @@ function renderPaymentsGrid(debtor) {
             if (!isPaid) {
                 paymentSquare.classList.add('selected');
                 selectedPaymentIndex = i;
-                if(paymentAmountInput) paymentAmountInput.value = (expectedAmountForThisInstallment - paidAmountForThisInstallment).toFixed(2);
-                if(paymentDateInput) paymentDateInput.valueAsDate = new Date();
+                paymentAmountInput.value = (expectedAmountForThisInstallment - paidAmountForThisInstallment).toFixed(2);
+                paymentDateInput.valueAsDate = new Date();
             } else {
                 selectedPaymentIndex = null;
-                if(paymentAmountInput) paymentAmountInput.value = '';
-                if(paymentDateInput) paymentDateInput.valueAsDate = null;
+                paymentAmountInput.value = '';
+                paymentDateInput.valueAsDate = null;
             }
         });
 
@@ -323,14 +328,14 @@ function renderPaymentsGrid(debtor) {
     const nextPendingSquare = paymentsGrid.querySelector('.payment-square:not(.paid)');
     if (nextPendingSquare) {
         const nextExpectedAmount = debtor.amountPerInstallment;
-        if(paymentAmountInput) paymentAmountInput.value = nextExpectedAmount.toFixed(2);
-        if(paymentDateInput) paymentDateInput.valueAsDate = new Date();
+        paymentAmountInput.value = nextExpectedAmount.toFixed(2);
+        paymentDateInput.valueAsDate = new Date();
         document.querySelectorAll('.payment-square').forEach(sq => sq.classList.remove('selected'));
         nextPendingSquare.classList.add('selected');
         selectedPaymentIndex = parseInt(nextPendingSquare.getAttribute('data-index'));
     } else {
-        if(paymentAmountInput) paymentAmountInput.value = '';
-        if(paymentDateInput) paymentDateInput.valueAsDate = null;
+        paymentAmountInput.value = '';
+        paymentDateInput.valueAsDate = null;
         selectedPaymentIndex = null;
     }
 }
@@ -715,7 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!currentDebtorId) return;
             const debtor = debtors.find(d => d.id === currentDebtorId);
             if (!debtor) return;
-            // ... (Restante da lógica showAllInstallments) ...
+            
             const modal = document.createElement('div');
             modal.className = 'fullscreen-modal';
             modal.innerHTML = `
@@ -809,8 +814,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         await debtorRef.update({ payments: updatedPayments });
 
-                        if(paymentAmountInput) paymentAmountInput.value = '';
-                        if(paymentDateInput) paymentDateInput.valueAsDate = new Date();
+                        paymentAmountInput.value = '';
+                        paymentDateInput.valueAsDate = new Date();
                         selectedPaymentIndex = null;
                     } else {
                         showError("Devedor não encontrado para adicionar pagamento.");
@@ -830,14 +835,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const nextPendingSquare = paymentsGrid.querySelector('.payment-square:not(.paid)');
                     if (nextPendingSquare) {
                         const nextExpectedAmount = debtor.amountPerInstallment;
-                        if(paymentAmountInput) paymentAmountInput.value = nextExpectedAmount.toFixed(2);
-                        if(paymentDateInput) paymentDateInput.valueAsDate = new Date();
+                        paymentAmountInput.value = nextExpectedAmount.toFixed(2);
+                        paymentDateInput.valueAsDate = new Date();
                         document.querySelectorAll('.payment-square').forEach(sq => sq.classList.remove('selected'));
                         nextPendingSquare.classList.add('selected');
                         selectedPaymentIndex = parseInt(nextPendingSquare.getAttribute('data-index'));
                     } else {
-                        if(paymentAmountInput) paymentAmountInput.value = debtor.amountPerInstallment.toFixed(2);
-                        if(paymentDateInput) paymentDateInput.valueAsDate = new Date();
+                        paymentAmountInput.value = debtor.amountPerInstallment.toFixed(2);
+                        paymentDateInput.valueAsDate = new Date();
                         selectedPaymentIndex = null;
                     }
                 }
@@ -849,6 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener('click', () => {
                 if(debtorDetailModal) debtorDetailModal.style.display = 'none';
                 if(addEditDebtorModal) addEditDebtorModal.style.display = 'none';
+                currentDebtorId = null; // Resetamos o devedor atual
                 selectedPaymentIndex = null;
             });
         });
@@ -856,10 +862,12 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('click', (event) => {
             if (event.target === debtorDetailModal) {
                 if(debtorDetailModal) debtorDetailModal.style.display = 'none';
+                currentDebtorId = null;
                 selectedPaymentIndex = null;
             }
             if (event.target === addEditDebtorModal) {
                 if(addEditDebtorModal) addEditDebtorModal.style.display = 'none';
+                currentDebtorId = null;
             }
         });
 
