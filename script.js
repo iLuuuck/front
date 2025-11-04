@@ -856,6 +856,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                 ...doc.data()
             }));
             renderDebtors();
+            updateStats();
 
             if (debtorDetailModal.style.display === 'flex' && currentDebtorId) {
                 const currentDebtorInModal = debtors.find(d => d.id === currentDebtorId);
@@ -1009,6 +1010,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 } // FIM do if (window.location.pathname.endsWith('dashboard.html')) { ... }
  // FIM do document.addEventListener('DOMContentLoaded', ...)
+
 
 
 
