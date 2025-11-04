@@ -964,3 +964,67 @@ input:checked + .slider:before {
     color: var(--error-color);
 }
 
+/* --- MENU DE TRÊS PONTOS (ao lado do botão) --- */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+}
+
+.menu-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.menu-toggle {
+    background-color: var(--button-secondary-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 20px;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    height: 100%;
+}
+
+.menu-toggle:hover {
+    background-color: var(--button-secondary-hover-bg);
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background-color: var(--card-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 5px 15px var(--box-shadow-color);
+    overflow: hidden;
+    z-index: 1000;
+    min-width: 150px;
+}
+
+.menu-dropdown.active {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.menu-item {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    text-align: left;
+    color: var(--text-color);
+    font-size: 0.95em;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background-color: var(--button-secondary-hover-bg);
+}
