@@ -273,7 +273,10 @@ button:active {
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px); /* Suporte para Safari */
     background-color: rgba(30, 30, 30, 0.5); /* Fundo semi-transparente (Dark Mode) */
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Borda "brilhante" */
+    
+    /* MUDANÇA: Borda Colorida Leve (Verde Primário) */
+    border: 1px solid rgba(0, 230, 118, 0.4); 
+    
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Sombra mais intensa */
     /* Fim do GLASS EFFECT */
 
@@ -288,7 +291,10 @@ button:active {
 /* Glass effect para o tema CLARO */
 body.light-theme .debtor-item {
     background-color: rgba(255, 255, 255, 0.7); /* Fundo semi-transparente (Light Mode) */
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    
+    /* MUDANÇA: Borda Colorida Leve (Azul Primário) */
+    border: 1px solid rgba(26, 115, 232, 0.5);
+    
     box-shadow: 0 8px 32px 0 rgba(30, 30, 30, 0.1);
 }
 
@@ -576,7 +582,10 @@ input:checked + .slider:before {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     background-color: rgba(66, 66, 66, 0.4); /* Fundo semi-transparente (Dark Mode) */
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    /* MUDANÇA: Borda Colorida Leve (Verde Primário) */
+    border: 1px solid rgba(0, 230, 118, 0.2); 
+    
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     /* Fim do GLASS EFFECT */
 
@@ -596,7 +605,10 @@ input:checked + .slider:before {
 /* Glass effect para o tema CLARO nos quadradinhos de pagamento */
 body.light-theme .payment-square {
     background-color: rgba(224, 224, 224, 0.7); /* Fundo semi-transparente (Light Mode) */
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    
+    /* MUDANÇA: Borda Colorida Leve (Azul Primário) */
+    border: 1px solid rgba(26, 115, 232, 0.3);
+    
     box-shadow: 0 2px 5px rgba(30, 30, 30, 0.1);
 }
 
