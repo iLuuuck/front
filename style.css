@@ -1,47 +1,47 @@
 /* --- Variáveis de Tema (Base para cores e tipografia) --- */
 :root {
-    /* Cores do tema escuro (Dark Mode) - Base em Azul Marinho/Ciano */
-    --primary-color: #00bcd4; /* Azul Ciano VIBRANTE (Acento Profissional) */
-    --accent-color: #00bcd4;
-    --accent-color-hover: #0097a7; /* Ciano um pouco mais escuro */
-    --error-color: #e57373; /* Vermelho suave para erros */
-    --success-color: #81c784; /* Verde Suave para sucesso */
+    /* Cores do tema escuro (Dark Mode) - Mais vivas e modernas */
+    --primary-color: #00e676; /* Verde VIBRANTE */
+    --accent-color: #00e676;
+    --accent-color-hover: #00c853; /* Verde um pouco mais escuro */
+    --error-color: #ff5252;
+    --success-color: #4caf50;
 
-    --background-color: #0d1b2a; /* Fundo Azul Marinho PROFUNDO (Muito Profissional) */
+    --background-color: #121212; /* Fundo bem escuro */
     --text-color: #e0e0e0; /* Texto cinza claro */
-    --card-background-color: #1b263b; /* Fundo de card mais escuro */
-    --border-color: #415a77; /* Borda sutil */
-    --input-background-color: #2b3a50;
+    --card-background-color: #1e1e1e; /* Fundo de card mais escuro (Será ignorado em cards com glass-morphism) */
+    --border-color: #424242; /* Borda sutil */
+    --input-background-color: #2c2c2c;
     --input-text-color: #ffffff; /* Texto do input branco puro */
-    --modal-overlay-color: rgba(0, 0, 0, 0.8);
-    --modal-background-color: #1b263b;
-    --button-secondary-bg: #415a77;
-    --button-secondary-hover-bg: #5a6e88;
-    --button-primary-text-color: #ffffff; /* Texto branco puro para botões primários */
+    --modal-overlay-color: rgba(0, 0, 0, 0.7);
+    --modal-background-color: #242424;
+    --button-secondary-bg: #424242;
+    --button-secondary-hover-bg: #5a5a5a;
+    --button-primary-text-color: #121212; /* Texto escuro para botões primários */
     --box-shadow-color: rgba(0, 0, 0, 0.4);
     --theme-icon: "🌙"; /* ícone padrão (tema escuro) */
 }
 
-/* Cores do tema claro (Light Mode) - Clean e corporativo (Base em Azul Corporativo) */
+/* Cores do tema claro (Light Mode) - Clean e moderno */
 body.light-theme {
-    --primary-color: #1976d2; /* Azul corporativo Padrão */
-    --accent-color: #1976d2;
-    --accent-color-hover: #1565c0;
-    --error-color: #d32f2f; /* Vermelho forte para erros */
-    --success-color: #388e3c; /* Verde forte para sucesso */
+    --primary-color: #1a73e8; /* Azul moderno do Google */
+    --accent-color: #1a73e8;
+    --accent-color-hover: #145cb3;
+    --error-color: #d32f2f;
+    --success-color: #388e3c;
 
-    --background-color: #f4f6f9; /* Fundo Cinza/Branco muito claro */
-    --text-color: #37474f; /* Cinza escuro para legibilidade */
+    --background-color: #f0f2f5; /* Cinza claro */
+    --text-color: #333;
     --card-background-color: #ffffff;
-    --border-color: #cfd8dc;
+    --border-color: #e0e0e0;
     --input-background-color: #ffffff;
-    --input-text-color: #37474f;
-    --modal-overlay-color: rgba(0, 0, 0, 0.3);
+    --input-text-color: #333;
+    --modal-overlay-color: rgba(0, 0, 0, 0.4);
     --modal-background-color: #fdfdfd;
     --button-secondary-bg: #e0e0e0;
     --button-secondary-hover-bg: #ccc;
     --button-primary-text-color: #ffffff;
-    --box-shadow-color: rgba(0, 0, 0, 0.15);
+    --box-shadow-color: rgba(0, 0, 0, 0.1);
     --theme-icon: "☀️"; /* ícone para o tema claro */
 }
 
@@ -83,6 +83,7 @@ button:active {
 
 /* --- Layout da Página de Login (index.html) --- */
 .container {
+    /* Mantido o estilo de card opaco para contraste */
     background-color: var(--card-background-color);
     padding: 40px;
     border-radius: 12px;
@@ -149,6 +150,7 @@ button:active {
 
 /* --- Layout da Página do Dashboard (dashboard.html) --- */
 .dashboard-container {
+    /* Mantido o estilo de card opaco para contraste */
     max-width: 1400px;
     margin: 20px auto;
     padding: 30px;
@@ -265,25 +267,42 @@ button:active {
     color: var(--error-color);
 }
 
-/* Efeito 3D e moderno para os itens de devedores */
+/* Efeito GLASS-MORPHISM para os itens de devedores */
 .debtor-item {
-    background-color: var(--input-background-color);
+    /* GLASS EFFECT */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px); /* Suporte para Safari */
+    background-color: rgba(30, 30, 30, 0.5); /* Fundo semi-transparente (Dark Mode) */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Borda "brilhante" */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Sombra mais intensa */
+    /* Fim do GLASS EFFECT */
+
     padding: 25px;
     border-radius: 12px;
-    box-shadow: 0 4px 8px var(--box-shadow-color),
-                0 6px 20px var(--box-shadow-color);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    border: 1px solid var(--border-color);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Glass effect para o tema CLARO */
+body.light-theme .debtor-item {
+    background-color: rgba(255, 255, 255, 0.7); /* Fundo semi-transparente (Light Mode) */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(30, 30, 30, 0.1);
 }
 
 .debtor-item:hover {
     transform: translateY(-8px);
-    box-shadow: 0 8px 16px var(--box-shadow-color),
-                0 12px 40px var(--box-shadow-color);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6),
+                0 12px 40px rgba(0, 0, 0, 0.6);
 }
+/* Glass effect para o tema CLARO no hover (para manter a sombra discreta) */
+body.light-theme .debtor-item:hover {
+    box-shadow: 0 8px 16px rgba(30, 30, 30, 0.3),
+                0 12px 40px rgba(30, 30, 30, 0.3);
+}
+
 
 .debtor-info h2 {
     margin-top: 0;
@@ -551,8 +570,16 @@ input:checked + .slider:before {
     margin-bottom: 25px;
 }
 
+/* Efeito GLASS-MORPHISM para os quadradinhos de pagamento */
 .payment-square {
-    background-color: var(--button-secondary-bg);
+    /* GLASS EFFECT (MILD) */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background-color: rgba(66, 66, 66, 0.4); /* Fundo semi-transparente (Dark Mode) */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    /* Fim do GLASS EFFECT */
+
     padding: 12px;
     border-radius: 8px;
     text-align: center;
@@ -563,8 +590,14 @@ input:checked + .slider:before {
     justify-content: space-between;
     min-height: 90px;
     position: relative;
-    box-shadow: 0 2px 5px var(--box-shadow-color);
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Glass effect para o tema CLARO nos quadradinhos de pagamento */
+body.light-theme .payment-square {
+    background-color: rgba(224, 224, 224, 0.7); /* Fundo semi-transparente (Light Mode) */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 5px rgba(30, 30, 30, 0.1);
 }
 
 .payment-square:hover:not(.paid) {
@@ -574,13 +607,14 @@ input:checked + .slider:before {
 }
 
 .payment-square.paid {
+    /* Mantém a cor sólida para o status pago */
     background-color: var(--success-color);
-    color: var(--button-primary-text-color); /* Garante bom contraste no tema escuro */
+    color: white;
 }
 
 .payment-square.selected {
     border: 2px solid var(--primary-color);
-    box-shadow: 0 0 0 4px var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(0, 230, 118, 0.4);
 }
 
 .payment-square span {
@@ -595,7 +629,7 @@ input:checked + .slider:before {
     right: 5px;
     background: none;
     border: none;
-    color: var(--input-text-color);
+    color: white;
     font-size: 1.3em;
     padding: 0;
     line-height: 1;
@@ -919,7 +953,8 @@ input:checked + .slider:before {
 }
 
 .installment-square {
-    background-color: var(--secondary-color);
+    /* Manteve o estilo opaco aqui, mas se quiser glass-morphism aqui também é só aplicar */
+    background-color: var(--button-secondary-bg); 
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -932,6 +967,11 @@ input:checked + .slider:before {
     align-items: center;
     gap: 5px;
 }
+
+body.light-theme .installment-square {
+    background-color: var(--button-secondary-bg);
+}
+
 
 .installment-square:hover {
     transform: translateY(-2px);
