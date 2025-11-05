@@ -1,37 +1,37 @@
 /* --- Variáveis de Tema (Base para cores e tipografia) --- */
 :root {
-    /* Cores do tema escuro (Dark Mode) - Base em Roxo/Magenta */
-    --primary-color: #bb86fc; /* Roxo/Magenta VIBRANTE (Acessibilidade W3C) */
-    --accent-color: #bb86fc;
-    --accent-color-hover: #9c27b0; /* Roxo um pouco mais escuro */
-    --error-color: #cf6679; /* Vermelho/Rosa suave */
-    --success-color: #03dac6; /* Ciano para Sucesso */
+    /* Cores do tema escuro (Dark Mode) - Base em Azul Marinho/Ciano */
+    --primary-color: #00bcd4; /* Azul Ciano VIBRANTE (Acento Profissional) */
+    --accent-color: #00bcd4;
+    --accent-color-hover: #0097a7; /* Ciano um pouco mais escuro */
+    --error-color: #e57373; /* Vermelho suave para erros */
+    --success-color: #81c784; /* Verde Suave para sucesso */
 
-    --background-color: #1a1a2e; /* Fundo Azul Escuro Profundo */
-    --text-color: #f0f4f8; /* Texto cinza/azul claro */
-    --card-background-color: #2c2c47; /* Fundo de card mais escuro */
-    --border-color: #44446e; /* Borda sutil */
-    --input-background-color: #3b3b5c;
+    --background-color: #0d1b2a; /* Fundo Azul Marinho PROFUNDO (Muito Profissional) */
+    --text-color: #e0e0e0; /* Texto cinza claro */
+    --card-background-color: #1b263b; /* Fundo de card mais escuro */
+    --border-color: #415a77; /* Borda sutil */
+    --input-background-color: #2b3a50;
     --input-text-color: #ffffff; /* Texto do input branco puro */
     --modal-overlay-color: rgba(0, 0, 0, 0.8);
-    --modal-background-color: #2c2c47;
-    --button-secondary-bg: #44446e;
-    --button-secondary-hover-bg: #5a5a80;
-    --button-primary-text-color: #1a1a2e; /* Texto escuro para botões primários */
+    --modal-background-color: #1b263b;
+    --button-secondary-bg: #415a77;
+    --button-secondary-hover-bg: #5a6e88;
+    --button-primary-text-color: #ffffff; /* Texto branco puro para botões primários */
     --box-shadow-color: rgba(0, 0, 0, 0.4);
     --theme-icon: "🌙"; /* ícone padrão (tema escuro) */
 }
 
-/* Cores do tema claro (Light Mode) - Clean e moderno (Base em Ciano/Azul Suave) */
+/* Cores do tema claro (Light Mode) - Clean e corporativo (Base em Azul Corporativo) */
 body.light-theme {
-    --primary-color: #00bcd4; /* Ciano moderno */
-    --accent-color: #00bcd4;
-    --accent-color-hover: #0097a7;
-    --error-color: #e57373; /* Vermelho suave */
-    --success-color: #81c784; /* Verde Suave */
+    --primary-color: #1976d2; /* Azul corporativo Padrão */
+    --accent-color: #1976d2;
+    --accent-color-hover: #1565c0;
+    --error-color: #d32f2f; /* Vermelho forte para erros */
+    --success-color: #388e3c; /* Verde forte para sucesso */
 
-    --background-color: #f5f8fa; /* Cinza/Azul claro */
-    --text-color: #37474f; /* Cinza escuro */
+    --background-color: #f4f6f9; /* Fundo Cinza/Branco muito claro */
+    --text-color: #37474f; /* Cinza escuro para legibilidade */
     --card-background-color: #ffffff;
     --border-color: #cfd8dc;
     --input-background-color: #ffffff;
