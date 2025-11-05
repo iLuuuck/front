@@ -1,47 +1,47 @@
 /* --- Variáveis de Tema (Base para cores e tipografia) --- */
 :root {
-    /* Cores do tema escuro (Dark Mode) - Mais vivas e modernas */
-    --primary-color: #00e676; /* Verde VIBRANTE */
-    --accent-color: #00e676;
-    --accent-color-hover: #00c853; /* Verde um pouco mais escuro */
-    --error-color: #ff5252;
-    --success-color: #4caf50;
+    /* Cores do tema escuro (Dark Mode) - Base em Roxo/Magenta */
+    --primary-color: #bb86fc; /* Roxo/Magenta VIBRANTE (Acessibilidade W3C) */
+    --accent-color: #bb86fc;
+    --accent-color-hover: #9c27b0; /* Roxo um pouco mais escuro */
+    --error-color: #cf6679; /* Vermelho/Rosa suave */
+    --success-color: #03dac6; /* Ciano para Sucesso */
 
-    --background-color: #121212; /* Fundo bem escuro */
-    --text-color: #e0e0e0; /* Texto cinza claro */
-    --card-background-color: #1e1e1e; /* Fundo de card mais escuro */
-    --border-color: #424242; /* Borda sutil */
-    --input-background-color: #2c2c2c;
+    --background-color: #1a1a2e; /* Fundo Azul Escuro Profundo */
+    --text-color: #f0f4f8; /* Texto cinza/azul claro */
+    --card-background-color: #2c2c47; /* Fundo de card mais escuro */
+    --border-color: #44446e; /* Borda sutil */
+    --input-background-color: #3b3b5c;
     --input-text-color: #ffffff; /* Texto do input branco puro */
-    --modal-overlay-color: rgba(0, 0, 0, 0.7);
-    --modal-background-color: #242424;
-    --button-secondary-bg: #424242;
-    --button-secondary-hover-bg: #5a5a5a;
-    --button-primary-text-color: #121212; /* Texto escuro para botões primários */
+    --modal-overlay-color: rgba(0, 0, 0, 0.8);
+    --modal-background-color: #2c2c47;
+    --button-secondary-bg: #44446e;
+    --button-secondary-hover-bg: #5a5a80;
+    --button-primary-text-color: #1a1a2e; /* Texto escuro para botões primários */
     --box-shadow-color: rgba(0, 0, 0, 0.4);
     --theme-icon: "🌙"; /* ícone padrão (tema escuro) */
 }
 
-/* Cores do tema claro (Light Mode) - Clean e moderno */
+/* Cores do tema claro (Light Mode) - Clean e moderno (Base em Ciano/Azul Suave) */
 body.light-theme {
-    --primary-color: #1a73e8; /* Azul moderno do Google */
-    --accent-color: #1a73e8;
-    --accent-color-hover: #145cb3;
-    --error-color: #d32f2f;
-    --success-color: #388e3c;
+    --primary-color: #00bcd4; /* Ciano moderno */
+    --accent-color: #00bcd4;
+    --accent-color-hover: #0097a7;
+    --error-color: #e57373; /* Vermelho suave */
+    --success-color: #81c784; /* Verde Suave */
 
-    --background-color: #f0f2f5; /* Cinza claro */
-    --text-color: #333;
+    --background-color: #f5f8fa; /* Cinza/Azul claro */
+    --text-color: #37474f; /* Cinza escuro */
     --card-background-color: #ffffff;
-    --border-color: #e0e0e0;
+    --border-color: #cfd8dc;
     --input-background-color: #ffffff;
-    --input-text-color: #333;
-    --modal-overlay-color: rgba(0, 0, 0, 0.4);
+    --input-text-color: #37474f;
+    --modal-overlay-color: rgba(0, 0, 0, 0.3);
     --modal-background-color: #fdfdfd;
     --button-secondary-bg: #e0e0e0;
     --button-secondary-hover-bg: #ccc;
     --button-primary-text-color: #ffffff;
-    --box-shadow-color: rgba(0, 0, 0, 0.1);
+    --box-shadow-color: rgba(0, 0, 0, 0.15);
     --theme-icon: "☀️"; /* ícone para o tema claro */
 }
 
@@ -575,12 +575,12 @@ input:checked + .slider:before {
 
 .payment-square.paid {
     background-color: var(--success-color);
-    color: white;
+    color: var(--button-primary-text-color); /* Garante bom contraste no tema escuro */
 }
 
 .payment-square.selected {
     border: 2px solid var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(0, 230, 118, 0.4);
+    box-shadow: 0 0 0 4px var(--primary-color);
 }
 
 .payment-square span {
@@ -595,7 +595,7 @@ input:checked + .slider:before {
     right: 5px;
     background: none;
     border: none;
-    color: white;
+    color: var(--input-text-color);
     font-size: 1.3em;
     padding: 0;
     line-height: 1;
@@ -1081,5 +1081,3 @@ input:checked + .slider:before {
 .switch.small-switch {
   transform: scale(0.8);
 }
-
-
