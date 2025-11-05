@@ -161,11 +161,31 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(amount);
     }
 
-    function formatDate(dateString) {
-        if (!dateString) return '';
-        const [year, month, day] = dateString.split('-');
-        return `${day}/${month}/${year}`;
+// NOVA VERSÃO para substituir a sua função formatDate em script.js
+function formatDate(timestampOrString) {
+    if (!timestampOrString) return 'N/A';
+
+    let date;
+
+    // Verifica se é um objeto Timestamp (vindo do bot ou do Firebase)
+    // No JS de front-end, o Timestamp será um objeto com o método toDate()
+    if (typeof timestampOrString === 'object' && typeof timestampOrString.toDate === 'function') {
+        date = timestampOrString.toDate();
+    } 
+    // Verifica se é uma string (pagamentos antigos)
+    else if (typeof timestampOrString === 'string') {
+        date = new Date(timestampOrString);
+    } 
+    // Se for outro tipo, tenta converter (fallback)
+    else {
+        date = new Date(timestampOrString);
     }
+
+    if (isNaN(date.getTime())) return 'N/A';
+
+    // Retorna no formato DD/MM/AAAA
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
 
     // Calcula o total a receber e a porcentagem de juros
     function calculateLoanDetails(loanedAmount, amountPerInstallment, installments, interestPercentage, calculationType) {
@@ -1010,6 +1030,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 } // FIM do if (window.location.pathname.endsWith('dashboard.html')) { ... }
  // FIM do document.addEventListener('DOMContentLoaded', ...)
+
 
 
 
