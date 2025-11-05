@@ -94,6 +94,113 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Estas são as novas funções que você deve adicionar ao seu script.js
+
+// --- VARIÁVEIS E FUNÇÕES DE GERAÇÃO DE CÓDIGO (Adicionar no topo do script.js) ---
+
+// Certifique-se de que 'db' esteja inicializado com: const db = firebase.firestore();
+const linkCodeDurationMinutes = 5; 
+const telegramLinkModal = document.getElementById('telegramLinkModal');
+const generateCodeInModalBtn = document.getElementById('generateCodeInModalBtn');
+
+/**
+ * Gera um código alfanumérico curto e fácil de digitar.
+ */
+function generateRandomCode(length = 6) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < length; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+}
+
+/**
+ * Cria um código de vínculo temporário no Firestore e o exibe.
+ */
+async function generateLinkCode() {
+    const codeDisplay = document.getElementById('codeDisplay');
+    const generatedCodeSpan = document.getElementById('generatedCode');
+    
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert('Você precisa estar logado para gerar um código de vínculo.');
+        return;
+    }
+
+    generateCodeInModalBtn.disabled = true;
+    generateCodeInModalBtn.textContent = 'Gerando...';
+    
+    try {
+        const userId = user.uid;
+        const email = user.email;
+        const code = generateRandomCode(6); 
+        const now = firebase.firestore.Timestamp.now();
+        
+        // Data de expiração: 5 minutos no futuro
+        const expiresAt = new firebase.firestore.Timestamp(now.seconds + (linkCodeDurationMinutes * 60), 0);
+
+        // Salva o código na coleção 'link_codes'
+        await db.collection('link_codes').doc(code).set({
+            userId: userId,
+            email: email,
+            createdAt: now,
+            expiresAt: expiresAt,
+            code: code // Salva o código dentro do documento (opcional, mas útil)
+        });
+
+        // Exibe o código na interface
+        generatedCodeSpan.textContent = code;
+        codeDisplay.style.display = 'block';
+        
+        generateCodeInModalBtn.textContent = 'Código Gerado!';
+
+        // Configura um timer para reativar o botão após o tempo de expiração
+        setTimeout(() => {
+            generateCodeInModalBtn.disabled = false;
+            generateCodeInModalBtn.textContent = 'Gerar Novo Código de Vínculo';
+            codeDisplay.style.display = 'none'; 
+        }, linkCodeDurationMinutes * 60 * 1000); 
+
+    } catch (error) {
+        console.error('Erro ao gerar código de vínculo:', error);
+        alert('Erro ao gerar código. Tente novamente mais tarde.');
+        generateCodeInModalBtn.disabled = false;
+        generateCodeInModalBtn.textContent = 'Gerar Código de Vínculo';
+        codeDisplay.style.display = 'none';
+    }
+}
+
+
+// --- FUNÇÕES DE CONTROLE DO MODAL DE VÍNCULO (Adicionar no script.js) ---
+
+// Abre o modal de vínculo
+function openTelegramLinkModal() {
+    telegramLinkModal.style.display = 'block';
+    // Garante que o botão de geração de código esteja visível ao abrir
+    generateCodeInModalBtn.textContent = 'Gerar Código de Vínculo';
+    generateCodeInModalBtn.disabled = false;
+    document.getElementById('codeDisplay').style.display = 'none';
+    
+    // Fecha o menu suspenso após clicar
+    const menuDropdown = document.getElementById('menuDropdown');
+    if (menuDropdown) {
+        menuDropdown.style.display = 'none'; 
+    }
+}
+
+// Fecha o modal de vínculo
+function closeTelegramLinkModal() {
+    telegramLinkModal.style.display = 'none';
+}
+
+// Fechar modal ao clicar fora
+window.addEventListener('click', (event) => {
+    if (event.target === telegramLinkModal) {
+        closeTelegramLinkModal();
+    }
+});
+
 
 // --- Lógica do Dashboard (agora dependente da autenticação Firebase) ---
 // Este código só será executado se estivermos no dashboard.html
@@ -1030,6 +1137,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 } // FIM do if (window.location.pathname.endsWith('dashboard.html')) { ... }
  // FIM do document.addEventListener('DOMContentLoaded', ...)
+
 
 
 
