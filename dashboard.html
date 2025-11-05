@@ -15,23 +15,30 @@
         <header class="header">
             <img src="logo.png" alt="Logo do Gerenciador de Empréstimos" class="app-logo"> 
             <h1>Seja Bem Vindo(a)</h1>
-<div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
-  <button id="addDebtorButton" class="button">Adicionar Devedor</button>
-  
-  <div class="menu-container">
-      <button class="menu-toggle" id="menuToggleButton">⋮</button>
-      <div class="menu-dropdown" id="menuDropdown">
-          <button id="themeToggleButton" class="menu-item">Mudar Tema</button>
-          <button id="logoutButton" class="menu-item">Sair</button>
-      </div>
-  </div>
-</div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 10px;">
+                <button id="addDebtorButton" class="button">Adicionar Devedor</button>
+                
+                <div class="menu-container">
+                    <button class="menu-toggle" id="menuToggleButton">⋮</button>
+                    <div class="menu-dropdown" id="menuDropdown">
+                        
+                        <button 
+                            id="generateLinkCodeBtn" 
+                            class="menu-item" 
+                            onclick="openTelegramLinkModal()">
+                            🔗 Vincular Telegram
+                        </button>
+
+                        <button id="themeToggleButton" class="menu-item">Mudar Tema</button>
+                        <button id="logoutButton" class="menu-item">Sair</button>
+                    </div>
+                </div>
+            </div>
         </header>
 
         <p id="errorMessage" class="error-message" style="display: none;"></p>
-
+        
         <div class="dashboard-content">
-                        <!-- === NOVA DASHBOARD DE ESTATÍSTICAS === -->
             <div class="stats-container">
                 <div class="stat-card">
                     <p class="stat-title">Total Emprestado</p>
@@ -54,7 +61,6 @@
                     <h2 id="totalToReceive">R$ 0,00</h2>
                 </div>
             </div>
-            <!-- === FIM DASHBOARD DE ESTATÍSTICAS === -->
             <div class="filter-actions">
                 <button id="filterAllButton" class="button">Todos</button>
                 <button id="filterDailyButton" class="button button-secondary">Diario</button>
@@ -67,132 +73,33 @@
         </div>
     </div>
 
-    
-<div id="addEditDebtorModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="addEditModalTitle">Adicionar Novo Devedor</h2>
-            <span class="close-button">&times;</span>
-        </div>
-        <div class="modal-body">
-            <form id="addEditDebtorForm">
-                <div class="input-group">
-                    <label for="debtorName">Nome:</label>
-                    <input type="text" id="debtorName" required>
-                </div>
-                <div class="input-group">
-                    <label for="debtorDescription">Descrição:</label>
-                    <input type="text" id="debtorDescription">
-                </div>
-                <div class="input-group">
-                    <label for="loanedAmount">Valor Emprestado:</label>
-                    <input type="number" id="loanedAmount" step="0.01" required>
-                </div>
+    <div id="telegramLinkModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔗 Vincular Telegram</h2>
+                <span class="close-button" onclick="closeTelegramLinkModal()">&times;</span>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <p>Clique abaixo para gerar um código temporário. Você usará este código no seu bot do Telegram.</p>
+                
+                <button id="generateCodeInModalBtn" class="button" onclick="generateLinkCode()">
+                    Gerar Código de Vínculo
+                </button>
 
-                <div class="input-group">
-                    <label for="frequency">Frequência de Recebimento:</label>
-                    <select id="frequency" required>
-                        <option value="daily">Diário</option>
-                        <option value="weekly">Semanal</option>
-                        <option value="monthly">Mensal</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label for="calculationType">Tipo de Cálculo:</label>
-                    <select id="calculationType">
-                        <option value="perInstallment">Valor por Parcela</option>
-                        <option value="percentage">Porcentagem de Juros</option>
-                    </select>
-                </div>
-
-                <div id="perInstallmentFields">
-                    <div class="input-group">
-                        <label for="amountPerInstallmentInput">Valor por Parcela:</label>
-                        <input type="number" id="amountPerInstallmentInput" step="0.01">
+                <div id="codeDisplay" style="margin-top: 25px; display: none;">
+                    <p>1. Copie o comando abaixo:</p>
+                    <div style="background-color: #e9e9e9; padding: 12px; border-radius: 6px; border: 1px dashed #ccc; user-select: all; cursor: copy;">
+                        <code>/vincular <span id="generatedCode" style="font-weight: bold;"></span></code>
                     </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="installments">Número de Parcelas:</label>
-                    <input type="number" id="installments" required>
-                </div>
-
-                <div id="percentageFields" style="display: none;">
-                    <div class="input-group">
-                        <label for="interestPercentageInput">Porcentagem de Juros (%):</label>
-                        <input type="number" id="interestPercentageInput" step="0.01">
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="startDate">Data de Início:</label>
-                    <input type="date" id="startDate" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" id="saveDebtorButton" class="button">Salvar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-    
-<div id="debtorDetailModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="detailDebtorName"></h2>
-            <span class="close-button">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div class="debtor-details-grid">
-                <p><strong>Descrição:</strong> <span id="detailDebtorDescription"></span></p>
-                <p><strong>Valor Emprestado:</strong> <span id="detailLoanedAmount"></span></p>
-                <p><strong>Total a Receber:</strong> <span id="detailTotalToReceive"></span></p>
-                <p><strong>% Juros:</strong> <span id="detailInterestPercentage"></span></p>
-                <p><strong>Parcelas:</strong> <span id="detailInstallments"></span></p>
-                <p><strong>Valor por Parcela:</strong> <span id="detailAmountPerInstallment"></span></p>
-                <p><strong>Data Início:</strong> <span id="detailStartDate"></span></p>
-                <p><strong>Frequência:</strong> <span id="detailFrequency"></span></p>
-                <div class="toggle-switch">
-                    <label for="toggleTotalToReceive">Esconder Total a Receber:</label>
-                    <label class="switch">
-                        <input type="checkbox" id="toggleTotalToReceive">
-                        <span class="slider round"></span>
-                    </label>
+                    <p style="font-size: 0.9em; color: #555;">2. Envie o comando para o seu bot no Telegram. O código expira em 5 minutos.</p>
                 </div>
             </div>
-
-            <div class="payment-header">
-                <h3>Pagamentos</h3>
-                <button id="showAllInstallmentsButton" class="button button-secondary">Exibir Todas as Parcelas</button>
-            </div>
-            <div id="paymentsGrid" class="payments-grid"></div>
-
-            <div class="payment-actions">
-                <div class="input-group">
-                    <label for="paymentAmount">Valor do Pagamento:</label>
-                    <input type="number" id="paymentAmount" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="paymentDate">Data do Pagamento:</label>
-                    <input type="date" id="paymentDate">
-                </div>
-                <button id="fillAmountButton" class="button button-secondary">Preencher Valor</button>
-                <button id="addPaymentButton" class="button">Adicionar Pagamento</button>
+            <div class="modal-footer">
+                <button class="button button-secondary" onclick="closeTelegramLinkModal()">Fechar</button>
             </div>
         </div>
     </div>
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 
 </body>
 </html>
-
-
-
-
-
-
-
