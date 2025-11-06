@@ -3,33 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de Empréstimos - Login</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Portal do Cliente - Acesso</title>
+    <link rel="stylesheet" href="style.css"> 
     <link rel="icon" href="favicon.ico" type="image/x-icon"> 
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="auth-section login-section active">
-            <img src="logo.png" alt="Logo do Gerenciador de Empréstimos" class="login-logo"> 
-            <h2>Login</h2>
-            <form id="loginForm">
+            <img src="logo.png" alt="Logo da Empresa" class="login-logo"> 
+            <h2>Acesso do Cliente</h2>
+            <p>Insira seu código de acesso exclusivo para visualizar sua dívida.</p>
+            
+            <form id="clientLoginForm">
                 <div class="input-group">
-                    <label for="loginEmail">E-mail:</label>
-                    <input type="email" id="loginEmail" required>
+                    <label for="uniqueCode">Código de Acesso:</label>
+                    <input type="text" id="uniqueCode" placeholder="Ex: 12345ABC" required>
                 </div>
-                <div class="input-group">
-                    <label for="loginPassword">Senha:</label>
-                    <input type="password" id="loginPassword" required>
-                </div>
-                <button type="submit" class="button">Entrar</button>
-                <p id="loginError" class="error-message"></p>
+                <button type="submit" class="button">Entrar no Portal</button>
             </form>
+            <p id="errorMessage" style="color: var(--error-color); margin-top: 15px; display: none;">Código de acesso inválido.</p>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="portal-cliente-script.js"></script>
 </body>
 </html>
