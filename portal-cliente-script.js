@@ -137,3 +137,4 @@ function logoutClient() {
     localStorage.removeItem('clientID');
     window.location.href = 'portal-cliente-login.html';
 }
+
