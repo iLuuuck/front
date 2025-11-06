@@ -1133,3 +1133,38 @@ body.light-theme .installment-square {
 .switch.small-switch {
   transform: scale(0.8);
 }
+
+/* --- Estilos para o Portal do Cliente: Parcelas (Quadradinhos) --- */
+.installment-square {
+    width: 90px; /* Tamanho do quadradinho */
+    height: 90px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: white; /* Texto branco para contraste */
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+    user-select: none;
+    border: none;
+}
+
+.installment-square:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+/* Cores de status baseadas nas variáveis do seu style.css */
+.installment-square[data-status="paid"] {
+    background-color: var(--success-color, #4caf50); /* Verde para PAGO */
+}
+
+.installment-square[data-status="unpaid"] {
+    background-color: var(--error-color, #ff5252); /* Vermelho/Laranja para ABERTO */
+}
