@@ -16,10 +16,9 @@ const DEBTORS_COLLECTION = 'debtors';
 
 // --- DETECÇÃO DE PÁGINA E EXECUÇÃO DE LÓGICA ---
 
-// Função auxiliar para calcular datas futuras
+// Função auxiliar para calcular datas futuras (MANTIDA, mas não usada para vencimento no front)
 function addDays(date, days) {
     const result = new Date(date);
-    // Cria um novo objeto Date para evitar modificar o objeto original
     const newDate = new Date(result.getFullYear(), result.getMonth(), result.getDate());
     newDate.setDate(newDate.getDate() + days);
     return newDate;
@@ -31,7 +30,7 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname.
     const loginForm = document.getElementById('clientLoginForm');
 
     if (loginForm) {
-        // --- LÓGICA DE LOGIN DO CLIENTE (CORRIGIDA) ---
+        // LÓGICA DE LOGIN DO CLIENTE
         const uniqueCodeInput = document.getElementById('uniqueCode');
         const errorMessage = document.getElementById('errorMessage');
         
@@ -47,7 +46,6 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname.
             }
 
             try {
-                // Busca o documento onde o CAMPO 'accessCode' corresponde ao código digitado
                 const snapshot = await db.collection(DEBTORS_COLLECTION)
                                           .where('accessCode', '==', uniqueCode)
                                           .limit(1)
@@ -71,7 +69,6 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname.
             }
         });
     } else {
-        // Lógica de Login do Admin - Mantenha seu código original aqui, se houver
         console.log("Executando lógica de Login do Admin.");
     }
 }
@@ -90,7 +87,6 @@ if (window.location.pathname.endsWith('dashboard.html')) {
     if (clientMainContent && clientID) {
         fetchClientData(clientID);
 
-        // Adiciona o evento de logout ao botão
         const logoutButton = document.getElementById('logoutButton');
         if (logoutButton) {
              logoutButton.addEventListener('click', logoutClient);
@@ -98,7 +94,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         
         // --- FUNÇÕES AUXILIARES ---
 
-        // 1. Função para buscar os dados do cliente no Firestore
+        // Função para buscar os dados do cliente no Firestore
         async function fetchClientData(id) {
             try {
                 const docRef = db.collection(DEBTORS_COLLECTION).doc(id);
@@ -117,16 +113,29 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             }
         }
 
-        // 2. Função para renderizar o painel com os dados (AGORA COM MODAL E CÁLCULO PARCIAL)
+        // Função para traduzir a frequência
+        function translateFrequency(frequency) {
+            switch (frequency.toLowerCase()) {
+                case 'daily': return 'Diário';
+                case 'weekly': return 'Semanal';
+                case 'monthly': return 'Mensal';
+                default: return 'N/A';
+            }
+        }
+
+        // Função para renderizar o painel com os dados
         function renderClientDashboard(clientData, clientID) {
             const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
             // Exibição dos dados principais
             document.getElementById('welcomeMessage').textContent = `Olá, ${clientData.name || 'Cliente'}!`;
             document.getElementById('clientName').textContent = clientData.name || 'N/A';
+            // Sobrenome removido
             document.getElementById('clientDescription').textContent = clientData.description || 'Nenhuma descrição fornecida.'; 
+            
             document.getElementById('loanAmount').textContent = formatter.format(clientData.loanedAmount || 0);
-            document.getElementById('loanFrequency').textContent = clientData.frequency || 'N/A'; 
+            // Frequência traduzida
+            document.getElementById('loanFrequency').textContent = translateFrequency(clientData.frequency || 'N/A'); 
             
             const totalInstallmentsCount = clientData.installments || 0;
             document.getElementById('totalInstallments').textContent = totalInstallmentsCount;
@@ -143,18 +152,17 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             const amountPerInstallment = clientData.amountPerInstallment || 0;
             const paymentsArray = clientData.payments || [];
 
-            // 1. Soma o valor total de todos os pagamentos registrados
             const totalPaidAmount = paymentsArray.reduce((sum, payment) => sum + (payment.amount || 0), 0);
-
-            // 2. Calcula quantas parcelas foram quitadas (Ex: 300 / 100 = 3)
             const fullyPaidInstallments = Math.floor(totalPaidAmount / amountPerInstallment);
-            
-            // 3. Calcula o valor que sobrou para abater a próxima parcela (Ex: 350 % 100 = 50)
             const remainingOnNext = totalPaidAmount % amountPerInstallment;
             
+            // Pega a data do último pagamento registrado (para o modal)
+            const lastPaymentDateGlobal = paymentsArray.length > 0 
+                ? new Date(paymentsArray[paymentsArray.length - 1].date || new Date()).toLocaleDateString('pt-BR') 
+                : 'N/A';
+
             // Lógica para gerar as parcelas (data)
             const startDate = new Date(clientData.startDate);
-            
             let daysToAdd;
             switch (clientData.frequency.toLowerCase()) {
                 case 'daily': daysToAdd = 1; break;
@@ -162,34 +170,26 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                 case 'monthly': daysToAdd = 30; break;
                 default: daysToAdd = 0;
             }
-            
-            // Pega a data do último pagamento registrado (para o modal)
-            const lastPaymentDateGlobal = paymentsArray.length > 0 
-                ? new Date(paymentsArray[paymentsArray.length - 1].date || new Date()).toLocaleDateString('pt-BR') 
-                : 'N/A';
-
 
             for (let i = 0; i < totalInstallmentsCount; i++) {
                 const installmentNumber = i + 1;
+                // Vencimento (dueDate) calculado, mas não mais exibido
                 const dueDate = addDays(startDate, installmentNumber * daysToAdd);
                 
                 // Determina o status da parcela
                 let status, paidAmount, remainingAmount, lastPaymentDate;
 
                 if (installmentNumber <= fullyPaidInstallments) {
-                    // Parcela totalmente paga
                     status = 'paid';
                     paidAmount = amountPerInstallment;
                     remainingAmount = 0;
                     lastPaymentDate = lastPaymentDateGlobal; 
                 } else if (installmentNumber === fullyPaidInstallments + 1 && remainingOnNext > 0) {
-                    // Parcela parcialmente paga (a próxima em linha)
                     status = 'partial';
                     paidAmount = remainingOnNext;
                     remainingAmount = amountPerInstallment - remainingOnNext;
                     lastPaymentDate = lastPaymentDateGlobal;
                 } else {
-                    // Parcela totalmente em aberto
                     status = 'unpaid';
                     paidAmount = 0;
                     remainingAmount = amountPerInstallment;
@@ -198,11 +198,9 @@ if (window.location.pathname.endsWith('dashboard.html')) {
 
                 const installmentDiv = document.createElement('div');
                 
-                // Atribui a classe de cor correta
                 installmentDiv.classList.add('installment-square');
                 installmentDiv.setAttribute('data-status', status);
 
-                // Texto no quadradinho
                 let squareText = `Nº ${installmentNumber}<br>`;
                 if (status === 'paid') {
                     squareText += '✅ Paga';
@@ -220,7 +218,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                     status: status,
                     paid: paidAmount,
                     remaining: remainingAmount,
-                    dueDate: dueDate.toLocaleDateString('pt-BR'),
+                    // dueDate: dueDate.toLocaleDateString('pt-BR'), <-- Removido
                     lastPayment: lastPaymentDate
                 };
 
@@ -253,7 +251,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             // Atualiza os conteúdos do modal
             document.getElementById('modalInstallmentNumber').textContent = data.number;
             document.getElementById('modalInstallmentValue').textContent = formatter.format(data.value);
-            document.getElementById('modalDueDate').textContent = data.dueDate;
+            // document.getElementById('modalDueDate').textContent = data.dueDate; <-- Removido
             
             const statusBadge = document.getElementById('modalInstallmentStatus');
             
@@ -281,7 +279,6 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         }
 
     } else if (!clientMainContent) {
-        // Lógica do Dashboard do Admin - Mantenha seu código original aqui, se houver
         console.log("Executando lógica do Dashboard do Admin.");
     }
 }
