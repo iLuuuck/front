@@ -12,7 +12,7 @@
             <img src="logo.png" alt="Logo da Empresa" class="app-logo"> 
             <h1 id="welcomeMessage">Olá, Cliente!</h1>
             <div class="header-actions">
-                <button class="button button-secondary" onclick="logoutClient()">Sair</button>
+                <button class="button button-secondary" id="logoutButton">Sair</button>
             </div>
         </header>
 
@@ -46,7 +46,26 @@
         </footer>
 
     </div>
+    
+    <div id="installmentModal" class="modal-overlay">
+        <div class="modal-content glass-morphism">
+            <span class="close-button">&times;</span>
+            <h2>Detalhes da Parcela <span id="modalInstallmentNumber"></span></h2>
+            
+            <div class="modal-info">
+                <p><strong>Vencimento:</strong> <span id="modalDueDate"></span></p>
+                <p><strong>Valor da Parcela:</strong> <span id="modalInstallmentValue"></span></p>
+                <p><strong>Status:</strong> <span id="modalInstallmentStatus" class="status-badge"></span></p>
+                <div id="paymentDetails">
+                    <p><strong>Valor Pago:</strong> <span id="modalPaidAmount"></span></p>
+                    <p><strong>Falta Pagar:</strong> <span id="modalRemainingAmount"></span></p>
+                    <p><strong>Último Pagamento:</strong> <span id="modalLastPaymentDate"></span></p>
+                </div>
+            </div>
 
+            <button id="modalPayButton" class="button" style="margin-top: 20px;">Pagar Parcela (Em Breve)</button>
+        </div>
+    </div>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     <script src="script.js"></script>
