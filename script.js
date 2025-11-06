@@ -221,7 +221,6 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         // --- PROTEÇÃO DE ROTA DO CLIENTE ---
         if (!clientID) {
             window.location.href = 'index.html';
-            return;
         }
         
         // --- FUNÇÃO DE BUSCA DE DADOS DO CLIENTE ---
@@ -378,3 +377,4 @@ if (window.location.pathname.endsWith('dashboard.html')) {
 
     } 
 }
+
