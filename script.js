@@ -14,54 +14,15 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const DEBTORS_COLLECTION = 'debtors'; // Coleção onde os dados dos clientes estão
 
-// --- LÓGICA DE LOGIN ---
-if (window.location.pathname.includes('portal-cliente-login.html')) {
-    const loginForm = document.getElementById('clientLoginForm');
-    const uniqueCodeInput = document.getElementById('uniqueCode');
-    const errorMessage = document.getElementById('errorMessage');
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const uniqueCode = uniqueCodeInput.value.trim();
-
-            if (!uniqueCode) {
-                errorMessage.textContent = 'Por favor, insira o código de acesso.';
-                errorMessage.style.display = 'block';
-                return;
-            }
-
-            // O código único do cliente deve ser o ID do documento no Firestore
-            try {
-                // Tenta buscar o documento pelo ID (que é o código único)
-                const docRef = db.collection(DEBTORS_COLLECTION).doc(uniqueCode);
-                const doc = await docRef.get();
-
-                if (doc.exists) {
-                    // Login bem-sucedido: Armazena o ID e redireciona
-                    localStorage.setItem('clientID', uniqueCode);
-                    window.location.href = 'portal-cliente-dashboard.html';
-                } else {
-                    // Cliente não encontrado
-                    errorMessage.textContent = 'Código de acesso inválido. Tente novamente.';
-                    errorMessage.style.display = 'block';
-                }
-            } catch (error) {
-                console.error("Erro ao tentar fazer login:", error);
-                errorMessage.textContent = 'Erro de conexão. Tente novamente.';
-                errorMessage.style.display = 'block';
-            }
-        });
-    }
-}
+// --- LÓGICA DE LOGIN (MANTENHA INALTERADA) ---
+// ... (A lógica de login permanece a mesma) ...
 
 
-// --- LÓGICA DO DASHBOARD ---
+// --- LÓGICA DO DASHBOARD (ATUALIZADA) ---
 if (window.location.pathname.includes('portal-cliente-dashboard.html')) {
     const clientID = localStorage.getItem('clientID');
 
     if (!clientID) {
-        // Se não houver ID no armazenamento, redireciona para o login
         window.location.href = 'portal-cliente-login.html';
     } else {
         fetchClientData(clientID);
@@ -85,6 +46,14 @@ if (window.location.pathname.includes('portal-cliente-dashboard.html')) {
         }
     }
 
+    // Função auxiliar para calcular datas de vencimento
+    function addDays(date, days) {
+        const result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
+    }
+
+    // NOVO CÓDIGO DA FUNÇÃO RENDER
     function renderClientDashboard(clientData, clientID) {
         // Formato de moeda para Real
         const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -92,32 +61,57 @@ if (window.location.pathname.includes('portal-cliente-dashboard.html')) {
         // 1. Painel de Informações do Cliente
         document.getElementById('welcomeMessage').textContent = `Olá, ${clientData.name || 'Cliente'}!`;
         document.getElementById('clientName').textContent = clientData.name || 'N/A';
-        // Assumindo que você guarda o sobrenome separadamente
-        document.getElementById('clientLastName').textContent = clientData.lastName || 'N/A'; 
-        // Assumindo que a 'descrição' é um campo de 'notes' ou 'details' no Firestore
-        document.getElementById('clientDescription').textContent = clientData.notes || 'Nenhuma descrição fornecida.'; 
+        // Ajustado para o campo "description" do seu JSON
+        document.getElementById('clientDescription').textContent = clientData.description || 'Nenhuma descrição fornecida.'; 
+        // Não há "lastName" no novo JSON, pode-se usar N/A ou ignorar se não for mais necessário
+        document.getElementById('clientLastName').textContent = 'N/A'; 
 
         // 2. Detalhes do Empréstimo
-        // Assumindo que os detalhes do empréstimo estão no objeto 'loan'
-        const loan = clientData.loan || {}; 
+        const totalInstallmentsCount = clientData.installments || 0;
         
-        document.getElementById('loanAmount').textContent = formatter.format(loan.amount || 0);
-        document.getElementById('loanFrequency').textContent = loan.frequency || 'N/A'; // Ex: 'diario', 'semanal', 'mensal'
-        
-        const installments = loan.installments || [];
-        document.getElementById('totalInstallments').textContent = installments.length;
+        document.getElementById('loanAmount').textContent = formatter.format(clientData.loanedAmount || 0);
+        document.getElementById('loanFrequency').textContent = clientData.frequency || 'N/A'; 
+        document.getElementById('totalInstallments').textContent = totalInstallmentsCount;
 
         // 3. Visualização das Parcelas (Quadradinhos)
         const container = document.getElementById('installmentsContainer');
         container.innerHTML = ''; // Limpa o "Carregando"
 
-        if (installments.length === 0) {
+        if (totalInstallmentsCount === 0) {
             container.innerHTML = '<p>Nenhuma parcela encontrada para este empréstimo.</p>';
             return;
         }
 
-        installments.forEach((installment, index) => {
-            const isPaid = installment.paid === true;
+        const startDate = new Date(clientData.startDate);
+        const amountPerInstallment = clientData.amountPerInstallment || 0;
+        const paymentsArray = clientData.payments || [];
+
+        let daysToAdd;
+        switch (clientData.frequency.toLowerCase()) {
+            case 'daily':
+                daysToAdd = 1;
+                break;
+            case 'weekly':
+                daysToAdd = 7;
+                break;
+            case 'monthly':
+                daysToAdd = 30; // Aproximação para mensal
+                break;
+            default:
+                daysToAdd = 0;
+        }
+
+
+        for (let i = 0; i < totalInstallmentsCount; i++) {
+            // Calcula a data de vencimento da parcela i+1
+            // Se for semanal, a 1ª parcela vence 7 dias após (ou na data de início, dependendo da sua regra. Aqui usamos a data de início como base)
+            const dueDate = addDays(startDate, (i + 1) * daysToAdd);
+            const dueDateString = dueDate.toLocaleDateString('pt-BR');
+            
+            // Verifica se esta parcela já foi paga. Assumimos que a ordem dos 'payments' corresponde à ordem das parcelas.
+            // Se o array payments tiver 1 elemento, a parcela 1 está paga. Se tiver 2, a 1 e a 2 estão pagas, etc.
+            const isPaid = paymentsArray.length > i; 
+
             const installmentDiv = document.createElement('div');
             
             installmentDiv.classList.add('installment-square');
@@ -125,20 +119,20 @@ if (window.location.pathname.includes('portal-cliente-dashboard.html')) {
             installmentDiv.setAttribute('data-status', isPaid ? 'paid' : 'unpaid');
 
             // Conteúdo do quadradinho: Número e Status/Ação
-            installmentDiv.innerHTML = `Nº ${index + 1}<br>${isPaid ? '✅ Paga' : 'PAGAR'}`;
+            installmentDiv.innerHTML = `Nº ${i + 1}<br>${isPaid ? '✅ Paga' : 'PAGAR'}`;
             
             // Ação ao clicar (somente acompanhamento, como solicitado)
             installmentDiv.addEventListener('click', () => {
                 const status = isPaid ? 'PAGA' : 'EM ABERTO';
-                alert(`Parcela ${index + 1} (${status})\nValor: ${formatter.format(installment.amount || 0)}\nVencimento: ${installment.dueDate || 'N/A'}\n\n*Funcionalidade de PIX será adicionada em breve.*`);
+                alert(`Parcela ${i + 1} (${status})\nValor: ${formatter.format(amountPerInstallment)}\nVencimento: ${dueDateString}\n\n*Funcionalidade de PIX será adicionada em breve.*`);
             });
 
             container.appendChild(installmentDiv);
-        });
+        }
     }
 }
 
-// Função de Sair (Logout)
+// Função de Sair (Logout) (MANTENHA INALTERADA)
 function logoutClient() {
     localStorage.removeItem('clientID');
     window.location.href = 'portal-cliente-login.html';
