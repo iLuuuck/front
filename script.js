@@ -14,7 +14,16 @@ const db = firebase.firestore();
 // Altere o nome da coleção se for diferente
 const DEBTORS_COLLECTION = 'debtors'; 
 
-// --- DETECTAÇÃO DE PÁGINA E EXECUÇÃO DE LÓGICA ---
+// --- DETECÇÃO DE PÁGINA E EXECUÇÃO DE LÓGICA ---
+
+// Função auxiliar para calcular datas futuras
+function addDays(date, days) {
+    const result = new Date(date);
+    // Cria um novo objeto Date para evitar modificar o objeto original
+    const newDate = new Date(result.getFullYear(), result.getMonth(), result.getDate());
+    newDate.setDate(newDate.getDate() + days);
+    return newDate;
+}
 
 // Lógica para login (index.html)
 if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/')) {
@@ -66,7 +75,7 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname.
             }
         });
     } else {
-        // --- LÓGICA DE LOGIN DO ADMIN (Mantenha seu código original aqui, se houver) ---
+        // Lógica de Login do Admin - Mantenha seu código original aqui, se houver
         console.log("Executando lógica de Login do Admin.");
     }
 }
@@ -84,13 +93,11 @@ if (window.location.pathname.endsWith('dashboard.html')) {
     }
 
     if (clientMainContent && clientID) {
-        // --- LÓGICA DO DASHBOARD DO CLIENTE ---
-        
         // Chamada inicial para buscar e renderizar os dados
         fetchClientData(clientID);
 
-        // Adiciona o evento de logout ao botão, se ele existir no dashboard.html
-        const logoutButton = document.getElementById('logoutButton');
+        // Adiciona o evento de logout ao botão, se ele existir
+        const logoutButton = document.querySelector('.header-actions button');
         if (logoutButton) {
              logoutButton.addEventListener('click', logoutClient);
         }
@@ -116,14 +123,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             }
         }
 
-        // 2. Função para calcular datas futuras
-        function addDays(date, days) {
-            const result = new Date(date);
-            result.setDate(result.getDate() + days);
-            return result;
-        }
-
-        // 3. Função para renderizar o painel com os dados
+        // 2. Função para renderizar o painel com os dados (AGORA COM CÁLCULO DE PARCELAS PAGAS)
         function renderClientDashboard(clientData, clientID) {
             const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -131,12 +131,10 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             document.getElementById('welcomeMessage').textContent = `Olá, ${clientData.name || 'Cliente'}!`;
             document.getElementById('clientName').textContent = clientData.name || 'N/A';
             document.getElementById('clientDescription').textContent = clientData.description || 'Nenhuma descrição fornecida.'; 
-            // document.getElementById('clientLastName').textContent = 'N/A'; // Este campo não existe no seu objeto, mantido N/A
-
-            const totalInstallmentsCount = clientData.installments || 0;
-            
             document.getElementById('loanAmount').textContent = formatter.format(clientData.loanedAmount || 0);
             document.getElementById('loanFrequency').textContent = clientData.frequency || 'N/A'; 
+            
+            const totalInstallmentsCount = clientData.installments || 0;
             document.getElementById('totalInstallments').textContent = totalInstallmentsCount;
 
             const container = document.getElementById('installmentsContainer');
@@ -147,32 +145,35 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                 return;
             }
 
-            // Lógica para gerar as parcelas
-            const startDate = new Date(clientData.startDate);
+            // --- CÁLCULO DE PARCELAS PAGAS CORRIGIDO ---
             const amountPerInstallment = clientData.amountPerInstallment || 0;
             const paymentsArray = clientData.payments || [];
 
+            // 1. Soma o valor total de todos os pagamentos registrados (R$ 300, no seu caso)
+            const totalPaidAmount = paymentsArray.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+
+            // 2. Calcula o número de parcelas que foram efetivamente quitadas (300 / 100 = 3)
+            const paidInstallments = Math.floor(totalPaidAmount / amountPerInstallment);
+            // --- FIM DO CÁLCULO CORRIGIDO ---
+
+
+            // Lógica para gerar as parcelas
+            const startDate = new Date(clientData.startDate);
+            
             let daysToAdd;
             switch (clientData.frequency.toLowerCase()) {
-                case 'daily':
-                    daysToAdd = 1;
-                    break;
-                case 'weekly':
-                    daysToAdd = 7;
-                    break;
-                case 'monthly':
-                    daysToAdd = 30; 
-                    break;
-                default:
-                    daysToAdd = 0;
+                case 'daily': daysToAdd = 1; break;
+                case 'weekly': daysToAdd = 7; break;
+                case 'monthly': daysToAdd = 30; break;
+                default: daysToAdd = 0;
             }
 
             for (let i = 0; i < totalInstallmentsCount; i++) {
                 const dueDate = addDays(startDate, (i + 1) * daysToAdd);
                 const dueDateString = dueDate.toLocaleDateString('pt-BR');
                 
-                // Verifica se o índice da parcela (i) é menor que o número de pagamentos registrados
-                const isPaid = paymentsArray.length > i; 
+                // VERIFICAÇÃO ATUALIZADA: Compara o índice da parcela (i) com o total de parcelas pagas
+                const isPaid = i < paidInstallments; 
 
                 const installmentDiv = document.createElement('div');
                 
@@ -197,7 +198,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         }
 
     } else if (!clientMainContent) {
-        // --- LÓGICA DO DASHBOARD DO ADMIN (Mantenha seu código original aqui, se houver) ---
+        // Lógica do Dashboard do Admin - Mantenha seu código original aqui, se houver
         console.log("Executando lógica do Dashboard do Admin.");
     }
 
