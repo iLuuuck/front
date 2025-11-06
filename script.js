@@ -47,24 +47,20 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname.
             }
 
             try {
-                // CORREÇÃO: Busca o documento onde o CAMPO 'accessCode' corresponde ao código digitado
+                // Busca o documento onde o CAMPO 'accessCode' corresponde ao código digitado
                 const snapshot = await db.collection(DEBTORS_COLLECTION)
                                           .where('accessCode', '==', uniqueCode)
-                                          .limit(1) // Otimiza a consulta
+                                          .limit(1)
                                           .get();
                 
                 if (!snapshot.empty) {
-                    // Código de acesso válido: Pega o ID REAL do documento (ID do Cliente)
                     const clientDoc = snapshot.docs[0];
                     const clientID = clientDoc.id; 
 
-                    // Salva o ID real do documento para uso no dashboard
                     localStorage.setItem('clientID', clientID); 
                     
-                    // Redireciona para o Painel do Cliente
                     window.location.href = 'dashboard.html'; 
                 } else {
-                    // Código de acesso inválido
                     errorMessage.textContent = 'Código de acesso inválido. Tente novamente.';
                     errorMessage.style.display = 'block';
                 }
@@ -88,16 +84,14 @@ if (window.location.pathname.endsWith('dashboard.html')) {
 
     // --- VERIFICAÇÃO DE SESSÃO DO CLIENTE ---
     if (clientMainContent && !clientID) {
-        // Se não houver ID, redireciona para o login
         window.location.href = 'index.html'; 
     }
 
     if (clientMainContent && clientID) {
-        // Chamada inicial para buscar e renderizar os dados
         fetchClientData(clientID);
 
-        // Adiciona o evento de logout ao botão, se ele existir
-        const logoutButton = document.querySelector('.header-actions button');
+        // Adiciona o evento de logout ao botão
+        const logoutButton = document.getElementById('logoutButton');
         if (logoutButton) {
              logoutButton.addEventListener('click', logoutClient);
         }
@@ -123,7 +117,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             }
         }
 
-        // 2. Função para renderizar o painel com os dados (AGORA COM CÁLCULO DE PARCELAS PAGAS)
+        // 2. Função para renderizar o painel com os dados (AGORA COM MODAL E CÁLCULO PARCIAL)
         function renderClientDashboard(clientData, clientID) {
             const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -145,19 +139,20 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                 return;
             }
 
-            // --- CÁLCULO DE PARCELAS PAGAS CORRIGIDO ---
+            // --- CÁLCULO DE PARCELAS PAGAS E VALOR PARCIAL ---
             const amountPerInstallment = clientData.amountPerInstallment || 0;
             const paymentsArray = clientData.payments || [];
 
-            // 1. Soma o valor total de todos os pagamentos registrados (R$ 300, no seu caso)
+            // 1. Soma o valor total de todos os pagamentos registrados
             const totalPaidAmount = paymentsArray.reduce((sum, payment) => sum + (payment.amount || 0), 0);
 
-            // 2. Calcula o número de parcelas que foram efetivamente quitadas (300 / 100 = 3)
-            const paidInstallments = Math.floor(totalPaidAmount / amountPerInstallment);
-            // --- FIM DO CÁLCULO CORRIGIDO ---
-
-
-            // Lógica para gerar as parcelas
+            // 2. Calcula quantas parcelas foram quitadas (Ex: 300 / 100 = 3)
+            const fullyPaidInstallments = Math.floor(totalPaidAmount / amountPerInstallment);
+            
+            // 3. Calcula o valor que sobrou para abater a próxima parcela (Ex: 350 % 100 = 50)
+            const remainingOnNext = totalPaidAmount % amountPerInstallment;
+            
+            // Lógica para gerar as parcelas (data)
             const startDate = new Date(clientData.startDate);
             
             let daysToAdd;
@@ -167,28 +162,116 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                 case 'monthly': daysToAdd = 30; break;
                 default: daysToAdd = 0;
             }
+            
+            // Pega a data do último pagamento registrado (para o modal)
+            const lastPaymentDateGlobal = paymentsArray.length > 0 
+                ? new Date(paymentsArray[paymentsArray.length - 1].date || new Date()).toLocaleDateString('pt-BR') 
+                : 'N/A';
+
 
             for (let i = 0; i < totalInstallmentsCount; i++) {
-                const dueDate = addDays(startDate, (i + 1) * daysToAdd);
-                const dueDateString = dueDate.toLocaleDateString('pt-BR');
+                const installmentNumber = i + 1;
+                const dueDate = addDays(startDate, installmentNumber * daysToAdd);
                 
-                // VERIFICAÇÃO ATUALIZADA: Compara o índice da parcela (i) com o total de parcelas pagas
-                const isPaid = i < paidInstallments; 
+                // Determina o status da parcela
+                let status, paidAmount, remainingAmount, lastPaymentDate;
+
+                if (installmentNumber <= fullyPaidInstallments) {
+                    // Parcela totalmente paga
+                    status = 'paid';
+                    paidAmount = amountPerInstallment;
+                    remainingAmount = 0;
+                    lastPaymentDate = lastPaymentDateGlobal; 
+                } else if (installmentNumber === fullyPaidInstallments + 1 && remainingOnNext > 0) {
+                    // Parcela parcialmente paga (a próxima em linha)
+                    status = 'partial';
+                    paidAmount = remainingOnNext;
+                    remainingAmount = amountPerInstallment - remainingOnNext;
+                    lastPaymentDate = lastPaymentDateGlobal;
+                } else {
+                    // Parcela totalmente em aberto
+                    status = 'unpaid';
+                    paidAmount = 0;
+                    remainingAmount = amountPerInstallment;
+                    lastPaymentDate = 'N/A';
+                }
 
                 const installmentDiv = document.createElement('div');
                 
+                // Atribui a classe de cor correta
                 installmentDiv.classList.add('installment-square');
-                installmentDiv.setAttribute('data-status', isPaid ? 'paid' : 'unpaid');
+                installmentDiv.setAttribute('data-status', status);
 
-                installmentDiv.innerHTML = `Nº ${i + 1}<br>${isPaid ? '✅ Paga' : 'PAGAR'}`;
+                // Texto no quadradinho
+                let squareText = `Nº ${installmentNumber}<br>`;
+                if (status === 'paid') {
+                    squareText += '✅ Paga';
+                } else if (status === 'partial') {
+                    squareText += `⚠️ Pg: ${formatter.format(paidAmount)}`;
+                } else {
+                    squareText += 'PAGAR';
+                }
+                installmentDiv.innerHTML = squareText;
                 
+                // Dados passados para o Modal
+                const modalData = {
+                    number: installmentNumber,
+                    value: amountPerInstallment,
+                    status: status,
+                    paid: paidAmount,
+                    remaining: remainingAmount,
+                    dueDate: dueDate.toLocaleDateString('pt-BR'),
+                    lastPayment: lastPaymentDate
+                };
+
                 installmentDiv.addEventListener('click', () => {
-                    const status = isPaid ? 'PAGA' : 'EM ABERTO';
-                    alert(`Parcela ${i + 1} (${status})\nValor: ${formatter.format(amountPerInstallment)}\nVencimento: ${dueDateString}\n\n*Funcionalidade de PIX será adicionada em breve.*`);
+                    openInstallmentModal(modalData, formatter);
                 });
 
                 container.appendChild(installmentDiv);
             }
+            
+            // Inicializa o fechamento do modal
+            const modal = document.getElementById('installmentModal');
+            const closeButton = document.querySelector('#installmentModal .close-button');
+            
+            closeButton.onclick = () => {
+                modal.style.display = 'none';
+            };
+
+            window.onclick = (event) => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }
+        
+        // --- FUNÇÃO PARA ABRIR O MODAL ---
+        function openInstallmentModal(data, formatter) {
+            const modal = document.getElementById('installmentModal');
+            
+            // Atualiza os conteúdos do modal
+            document.getElementById('modalInstallmentNumber').textContent = data.number;
+            document.getElementById('modalInstallmentValue').textContent = formatter.format(data.value);
+            document.getElementById('modalDueDate').textContent = data.dueDate;
+            
+            const statusBadge = document.getElementById('modalInstallmentStatus');
+            
+            // Define o texto e a cor do status
+            statusBadge.textContent = data.status === 'paid' ? 'PAGA' : (data.status === 'partial' ? 'PARCIALMENTE PAGA' : 'EM ABERTO');
+            statusBadge.className = `status-badge ${data.status}`; 
+
+            document.getElementById('modalPaidAmount').textContent = formatter.format(data.paid);
+            document.getElementById('modalRemainingAmount').textContent = formatter.format(data.remaining);
+            document.getElementById('modalLastPaymentDate').textContent = data.lastPayment;
+            
+            // Exibe o modal
+            modal.style.display = 'flex';
+            
+            // Configura o botão Pagar (sem função, por enquanto)
+            const payButton = document.getElementById('modalPayButton');
+            payButton.disabled = false;
+            payButton.textContent = 'Pagar Parcela (Em Breve)';
         }
 
         // 4. Função de Sair (Logout)
@@ -201,5 +284,4 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         // Lógica do Dashboard do Admin - Mantenha seu código original aqui, se houver
         console.log("Executando lógica do Dashboard do Admin.");
     }
-
 }
