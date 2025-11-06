@@ -1,12 +1,12 @@
 // --- Configuração e Inicialização do Firebase ---
 // ATENÇÃO: Mantenha a sua configuração COMPLETA e REAL do Firebase aqui.
 const firebaseConfig = {
-    apiKey: "AIzaSyAH0w8X7p6D6c5Ga4Ma0eIJx5J4BtdlG2M", 
-    authDomain: "russo2.firebaseapp.com",
-    projectId: "russo2",
-    storageBucket: "russo2.firebasestorage.app",
-    messagingSenderId: "59081214787",
-    appId: "1:59081214787:web:86f68c74a081a2608447d3"
+    apiKey: "AIzaSyAEZVCbz39BiqTj5f129PcrVHxfS6OnzLc",
+    authDomain: "gerenciadoremprestimos.firebaseapp.com",
+    projectId: "gerenciadoremprestimos",
+    storageBucket: "gerenciadoremprestimos.firebasestorage.app",
+    messagingSenderId: "365277402196",
+    appId: "1:365277402196:web:65016aa2dd316e718a89c1"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -282,3 +282,4 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         console.log("Executando lógica do Dashboard do Admin.");
     }
 }
+
