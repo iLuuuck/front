@@ -308,7 +308,7 @@ payButton.onclick = () => {
         pixResult.style.display = "block";
 
         try {
-            const response = await fetch("https://SEU-BACKEND.onrender.com/pix/generate", {
+            const response = await fetch("https://meu-pix-backend.onrender.com/pix/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -349,6 +349,7 @@ payButton.onclick = () => {
         console.log("Executando lógica do Dashboard do Admin.");
     }
 }
+
 
 
 
