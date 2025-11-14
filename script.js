@@ -299,7 +299,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                             pixResult.innerHTML = `
                                 <img src="${result.qrBase64}" style="width:230px;height:230px;">
                                 <p style="margin-top:10px;word-break:break-all;">
-                                    <strong>Copia e Cola:</strong><br>${result.emv}
+                                    <strong>Copia e Cola:</strong><br>${result.copiaECola}
                                 </p>
                             `;
                         } else {
@@ -321,3 +321,4 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         }
     }
 }
+
