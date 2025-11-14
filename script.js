@@ -127,6 +127,8 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         function renderClientDashboard(clientData, clientID) {
             const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
+            window.currentClientUserId = clientData.userId;
+
             // Exibição dos dados principais
             document.getElementById('welcomeMessage').textContent = `Olá, ${clientData.name || 'Cliente'}!`;
             document.getElementById('clientName').textContent = clientData.name || 'N/A';
@@ -267,9 +269,74 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             modal.style.display = 'flex';
             
             // Configura o botão Pagar (sem função, por enquanto)
-            const payButton = document.getElementById('modalPayButton');
-            payButton.disabled = false;
-            payButton.textContent = 'Pagar Parcela (Em Breve)';
+// Botão de pagar via PIX
+const payButton = document.getElementById('modalPayButton');
+const pixArea = document.getElementById('pixArea');
+
+payButton.disabled = false;
+payButton.textContent = 'PAGAR AGORA VIA PIX';
+
+// Quando clicar no botão:
+payButton.onclick = () => {
+    pixArea.style.display = "block";
+
+    pixArea.innerHTML = `
+        <h3 style="margin-top:10px;">💸 Pagar Parcela #${data.number}</h3>
+        <p>Valor da parcela: <strong>${formatter.format(data.value)}</strong></p>
+
+        <label style="display:block;margin-top:10px;">Digite o valor desejado:</label>
+        <input id="pixValueInput" 
+               type="number" 
+               min="1"
+               value="${data.remaining || data.value}"
+               style="width:100%;padding:10px;border-radius:8px;background:#2c2c2c;color:white;border:1px solid #444;">
+
+        <small>*Você pode pagar mais, menos ou o valor exato.</small>
+
+        <button id="generatePixButton" class="button" style="margin-top:15px;width:100%;">
+            GERAR PIX
+        </button>
+
+        <div id="pixResult" style="margin-top:20px;text-align:center;display:none;"></div>
+    `;
+
+    document.getElementById("generatePixButton").onclick = async () => {
+        const chosenValue = Number(document.getElementById("pixValueInput").value);
+        const pixResult = document.getElementById("pixResult");
+
+        pixResult.innerHTML = "<p>Gerando QR Code...</p>";
+        pixResult.style.display = "block";
+
+        try {
+            const response = await fetch("https://SEU-BACKEND.onrender.com/pix/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    loanId: clientID,
+                    parcelaNumber: data.number,
+                    userId: window.currentClientUserId, 
+                    valorEscolhido: chosenValue
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.qrBase64) {
+                pixResult.innerHTML = `
+                    <img src="${result.qrBase64}" style="width:230px;height:230px;">
+                    <p style="margin-top:10px;word-break:break-all;">
+                        <strong>Copia e Cola:</strong><br>${result.copiaECola}
+                    </p>
+                `;
+            } else {
+                pixResult.innerHTML = "<p>Erro ao gerar PIX.</p>";
+            }
+        } catch (err) {
+            console.error(err);
+            pixResult.innerHTML = "<p>Erro ao gerar PIX.</p>";
+        }
+    };
+};
         }
 
         // 4. Função de Sair (Logout)
@@ -282,4 +349,5 @@ if (window.location.pathname.endsWith('dashboard.html')) {
         console.log("Executando lógica do Dashboard do Admin.");
     }
 }
+
 
