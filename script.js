@@ -11,12 +11,12 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-// Altere o nome da coleção se for diferente
+
+// Nome da coleção
 const DEBTORS_COLLECTION = 'debtors'; 
 
-// --- DETECÇÃO DE PÁGINA E EXECUÇÃO DE LÓGICA ---
+// ----------- Funções Auxiliares -----------
 
-// Função auxiliar para calcular datas futuras (MANTIDA, mas não usada para vencimento no front)
 function addDays(date, days) {
     const result = new Date(date);
     const newDate = new Date(result.getFullYear(), result.getMonth(), result.getDate());
@@ -24,13 +24,12 @@ function addDays(date, days) {
     return newDate;
 }
 
-// Lógica para login (index.html)
+// =========================== LOGIN ===============================
 if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/')) {
     
     const loginForm = document.getElementById('clientLoginForm');
 
     if (loginForm) {
-        // LÓGICA DE LOGIN DO CLIENTE
         const uniqueCodeInput = document.getElementById('uniqueCode');
         const errorMessage = document.getElementById('errorMessage');
         
@@ -68,18 +67,14 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname.
                 errorMessage.style.display = 'block';
             }
         });
-    } else {
-        console.log("Executando lógica de Login do Admin.");
     }
 }
 
-
-// Lógica para Dashboard (dashboard.html)
+// =========================== DASHBOARD ===============================
 if (window.location.pathname.endsWith('dashboard.html')) {
     const clientMainContent = document.getElementById('clientMainContent');
     const clientID = localStorage.getItem('clientID');
 
-    // --- VERIFICAÇÃO DE SESSÃO DO CLIENTE ---
     if (clientMainContent && !clientID) {
         window.location.href = 'index.html'; 
     }
@@ -92,9 +87,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
              logoutButton.addEventListener('click', logoutClient);
         }
         
-        // --- FUNÇÕES AUXILIARES ---
-
-        // Função para buscar os dados do cliente no Firestore
+        // ===== Buscar cliente =====
         async function fetchClientData(id) {
             try {
                 const docRef = db.collection(DEBTORS_COLLECTION).doc(id);
@@ -113,7 +106,7 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             }
         }
 
-        // Função para traduzir a frequência
+        // Frequência
         function translateFrequency(frequency) {
             switch (frequency.toLowerCase()) {
                 case 'daily': return 'Diário';
@@ -123,20 +116,17 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             }
         }
 
-        // Função para renderizar o painel com os dados
+        // ===== Renderização do Dashboard =====
         function renderClientDashboard(clientData, clientID) {
             const formatter = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
             window.currentClientUserId = clientData.userId;
 
-            // Exibição dos dados principais
             document.getElementById('welcomeMessage').textContent = `Olá, ${clientData.name || 'Cliente'}!`;
             document.getElementById('clientName').textContent = clientData.name || 'N/A';
-            // Sobrenome removido
             document.getElementById('clientDescription').textContent = clientData.description || 'Nenhuma descrição fornecida.'; 
             
             document.getElementById('loanAmount').textContent = formatter.format(clientData.loanedAmount || 0);
-            // Frequência traduzida
             document.getElementById('loanFrequency').textContent = translateFrequency(clientData.frequency || 'N/A'); 
             
             const totalInstallmentsCount = clientData.installments || 0;
@@ -150,7 +140,6 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                 return;
             }
 
-            // --- CÁLCULO DE PARCELAS PAGAS E VALOR PARCIAL ---
             const amountPerInstallment = clientData.amountPerInstallment || 0;
             const paymentsArray = clientData.payments || [];
 
@@ -158,12 +147,10 @@ if (window.location.pathname.endsWith('dashboard.html')) {
             const fullyPaidInstallments = Math.floor(totalPaidAmount / amountPerInstallment);
             const remainingOnNext = totalPaidAmount % amountPerInstallment;
             
-            // Pega a data do último pagamento registrado (para o modal)
             const lastPaymentDateGlobal = paymentsArray.length > 0 
                 ? new Date(paymentsArray[paymentsArray.length - 1].date || new Date()).toLocaleDateString('pt-BR') 
                 : 'N/A';
 
-            // Lógica para gerar as parcelas (data)
             const startDate = new Date(clientData.startDate);
             let daysToAdd;
             switch (clientData.frequency.toLowerCase()) {
@@ -175,10 +162,8 @@ if (window.location.pathname.endsWith('dashboard.html')) {
 
             for (let i = 0; i < totalInstallmentsCount; i++) {
                 const installmentNumber = i + 1;
-                // Vencimento (dueDate) calculado, mas não mais exibido
                 const dueDate = addDays(startDate, installmentNumber * daysToAdd);
                 
-                // Determina o status da parcela
                 let status, paidAmount, remainingAmount, lastPaymentDate;
 
                 if (installmentNumber <= fullyPaidInstallments) {
@@ -199,7 +184,6 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                 }
 
                 const installmentDiv = document.createElement('div');
-                
                 installmentDiv.classList.add('installment-square');
                 installmentDiv.setAttribute('data-status', status);
 
@@ -213,14 +197,12 @@ if (window.location.pathname.endsWith('dashboard.html')) {
                 }
                 installmentDiv.innerHTML = squareText;
                 
-                // Dados passados para o Modal
                 const modalData = {
                     number: installmentNumber,
                     value: amountPerInstallment,
                     status: status,
                     paid: paidAmount,
                     remaining: remainingAmount,
-                    // dueDate: dueDate.toLocaleDateString('pt-BR'), <-- Removido
                     lastPayment: lastPaymentDate
                 };
 
@@ -230,126 +212,112 @@ if (window.location.pathname.endsWith('dashboard.html')) {
 
                 container.appendChild(installmentDiv);
             }
-            
-            // Inicializa o fechamento do modal
+
             const modal = document.getElementById('installmentModal');
             const closeButton = document.querySelector('#installmentModal .close-button');
             
-            closeButton.onclick = () => {
-                modal.style.display = 'none';
-            };
-
-            window.onclick = (event) => {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            };
+            closeButton.onclick = () => { modal.style.display = 'none'; };
+            window.onclick = (event) => { if (event.target == modal) modal.style.display = 'none'; };
         }
-        
-        // --- FUNÇÃO PARA ABRIR O MODAL ---
+
+        // ==================== MODAL DA PARCELA ===================
         function openInstallmentModal(data, formatter) {
             const modal = document.getElementById('installmentModal');
-            
-            // Atualiza os conteúdos do modal
             document.getElementById('modalInstallmentNumber').textContent = data.number;
             document.getElementById('modalInstallmentValue').textContent = formatter.format(data.value);
-            // document.getElementById('modalDueDate').textContent = data.dueDate; <-- Removido
-            
+          
             const statusBadge = document.getElementById('modalInstallmentStatus');
-            
-            // Define o texto e a cor do status
-            statusBadge.textContent = data.status === 'paid' ? 'PAGA' : (data.status === 'partial' ? 'PARCIALMENTE PAGA' : 'EM ABERTO');
-            statusBadge.className = `status-badge ${data.status}`; 
+            statusBadge.textContent = data.status === 'paid' ? 'PAGA' :
+                                      data.status === 'partial' ? 'PARCIAL' :
+                                      'EM ABERTO';
+            statusBadge.className = `status-badge ${data.status}`;
 
             document.getElementById('modalPaidAmount').textContent = formatter.format(data.paid);
             document.getElementById('modalRemainingAmount').textContent = formatter.format(data.remaining);
             document.getElementById('modalLastPaymentDate').textContent = data.lastPayment;
             
-            // Exibe o modal
             modal.style.display = 'flex';
             
-            // Configura o botão Pagar (sem função, por enquanto)
-// Botão de pagar via PIX
-const payButton = document.getElementById('modalPayButton');
-const pixArea = document.getElementById('pixArea');
+            const payButton = document.getElementById('modalPayButton');
+            const pixArea = document.getElementById('pixArea');
 
-payButton.disabled = false;
-payButton.textContent = 'PAGAR AGORA VIA PIX';
+            payButton.disabled = false;
+            payButton.textContent = 'PAGAR AGORA VIA PIX';
 
-// Quando clicar no botão:
-payButton.onclick = () => {
-    pixArea.style.display = "block";
+            payButton.onclick = () => {
+                pixArea.style.display = "block";
 
-    pixArea.innerHTML = `
-        <h3 style="margin-top:10px;">💸 Pagar Parcela #${data.number}</h3>
-        <p>Valor da parcela: <strong>${formatter.format(data.value)}</strong></p>
+                pixArea.innerHTML = `
+                    <h3 style="margin-top:10px;">💸 Pagar Parcela #${data.number}</h3>
+                    <p>Valor da parcela: <strong>${formatter.format(data.value)}</strong></p>
 
-        <label style="display:block;margin-top:10px;">Digite o valor desejado:</label>
-        <input id="pixValueInput" 
-               type="number" 
-               min="1"
-               value="${data.remaining || data.value}"
-               style="width:100%;padding:10px;border-radius:8px;background:#2c2c2c;color:white;border:1px solid #444;">
+                    <label style="display:block;margin-top:10px;">Digite o valor desejado:</label>
+                    <input id="pixValueInput" 
+                        type="number"
+                        min="1"
+                        value="${data.remaining || data.value}"
+                        style="width:100%;padding:10px;border-radius:8px;background:#2c2c2c;color:white;border:1px solid #444;">
 
-        <small>*Você pode pagar mais, menos ou o valor exato.</small>
+                    <small>*Você pode pagar mais, menos ou o valor exato.</small>
 
-        <button id="generatePixButton" class="button" style="margin-top:15px;width:100%;">
-            GERAR PIX
-        </button>
+                    <button id="generatePixButton" class="button" style="margin-top:15px;width:100%;">
+                        GERAR PIX
+                    </button>
 
-        <div id="pixResult" style="margin-top:20px;text-align:center;display:none;"></div>
-    `;
-
-    document.getElementById("generatePixButton").onclick = async () => {
-        const chosenValue = Number(document.getElementById("pixValueInput").value);
-        const pixResult = document.getElementById("pixResult");
-
-        pixResult.innerHTML = "<p>Gerando QR Code...</p>";
-        pixResult.style.display = "block";
-
-        try {
-            const response = await fetch("https://meu-pix-backend.onrender.com/pix/generate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    loanId: clientID,
-                    parcelaNumber: data.number,
-                    userId: window.currentClientUserId, 
-                    valorEscolhido: chosenValue
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.qrBase64) {
-                pixResult.innerHTML = `
-                    <img src="${result.qrBase64}" style="width:230px;height:230px;">
-                    <p style="margin-top:10px;word-break:break-all;">
-                        <strong>Copia e Cola:</strong><br>${result.copiaECola}
-                    </p>
+                    <div id="pixResult" style="margin-top:20px;text-align:center;display:none;"></div>
                 `;
-            } else {
-                pixResult.innerHTML = "<p>Erro ao gerar PIX.</p>";
-            }
-        } catch (err) {
-            console.error(err);
-            pixResult.innerHTML = "<p>Erro ao gerar PIX.</p>";
-        }
-    };
-};
+
+                document.getElementById("generatePixButton").onclick = async () => {
+                    const chosenValue = Number(document.getElementById("pixValueInput").value);
+                    const pixResult = document.getElementById("pixResult");
+                    const clientID = localStorage.getItem("clientID");
+
+                    if (!chosenValue || chosenValue <= 0) {
+                        pixResult.innerHTML = "<p>Digite um valor válido.</p>";
+                        pixResult.style.display = "block";
+                        return;
+                    }
+
+                    pixResult.innerHTML = "<p>Gerando QR Code...</p>";
+                    pixResult.style.display = "block";
+
+                    try {
+                        const response = await fetch("https://meu-pix-backend.onrender.com/pix/generate", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                loanId: clientID,
+                                parcelaNumber: data.number,
+                                userId: window.currentClientUserId,
+                                valorEscolhido: chosenValue
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok && result.qrBase64) {
+                            pixResult.innerHTML = `
+                                <img src="${result.qrBase64}" style="width:230px;height:230px;">
+                                <p style="margin-top:10px;word-break:break-all;">
+                                    <strong>Copia e Cola:</strong><br>${result.emv}
+                                </p>
+                            `;
+                        } else {
+                            pixResult.innerHTML = "<p>Erro ao gerar PIX.</p>";
+                        }
+
+                    } catch (err) {
+                        console.error("Erro no fetch:", err);
+                        pixResult.innerHTML = "<p>Erro ao gerar PIX (falha de conexão).</p>";
+                    }
+                };
+            };
         }
 
-        // 4. Função de Sair (Logout)
+        // ===== Logout =====
         function logoutClient() {
             localStorage.removeItem('clientID');
             window.location.href = 'index.html';
         }
-
-    } else if (!clientMainContent) {
-        console.log("Executando lógica do Dashboard do Admin.");
     }
 }
-
-
-
-
